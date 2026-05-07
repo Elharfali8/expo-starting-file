@@ -7,7 +7,6 @@ type Props = {
 };
 
 export default function WorkspaceButton({ isOpen, handleIsOpen }: Props) {
-  console.log(isOpen);
 
   return (
     <TouchableOpacity

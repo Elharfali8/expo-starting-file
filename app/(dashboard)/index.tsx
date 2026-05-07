@@ -1,22 +1,16 @@
 // import { Image } from "expo-image";
 import { User, Users, X } from "lucide-react-native";
 import { Image, Text, TouchableOpacity, View } from "react-native";
+import PageTitle from "./components/PageTitle";
 
 const Dashboard = () => {
   const imgSource = `${process.env.EXPO_PUBLIC_MEDIA_URL}/public/52/digital_profile/profile_image/c7fe3d8757.webp`;
 
-  console.log(imgSource);
 
   return (
     <View className="flex-1 bg-slate-100 px-4 py-8">
       {/* HEADER */}
-      <View className="mb-6">
-        <Text className="text-2xl font-extrabold mb-1">Accueil</Text>
-        <Text className="text-gray-800">
-          Tout est prêt pour vous. Faites un tour et créons de grandes choses
-          ensemble !
-        </Text>
-      </View>
+      <PageTitle title='Accueil' subTitle='Tout est prêt pour vous. Faites un tour et créons de grandes choses ensemble !' />
       {/* CONTENT */}
       <View>
         <View className="p-4 bg-white shadow-lg rounded-2xl">
