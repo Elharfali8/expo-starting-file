@@ -8,8 +8,17 @@ import {
   LayoutGrid,
   UserRound,
 } from "lucide-react-native";
+import WorkspaceButton from "./WorkspaceButton";
+import { useState } from "react";
+import LinksDropDown from "./LinksDropDown";
 
 export default function TopNavBar() {
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+
+  const handleIsOpen = () => {
+    setIsOpen((prev) => !prev)
+  }
+
   return (
     <View className="bg-white border-b border-slate-200">
       <View className="h-18 px-4 flex-row items-center justify-between">
@@ -33,38 +42,9 @@ export default function TopNavBar() {
         <View className="flex-row items-center gap-3">
           
           {/* WORKSPACE */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            className="
-              h-11
-              px-2
-              flex-row
-              items-center
-              gap-2
-              bg-slate-50
-              border
-              border-slate-200
-              rounded-2xl
-            "
-          >
-            <View className="w-8 h-8 rounded-xl bg-indigo-50 items-center justify-center">
-              <LayoutGrid
-                size={18}
-                color="#4f46e5"
-                strokeWidth={2.2}
-              />
-            </View>
-
-            <Text className="text-slate-900 text-[14px] font-semibold">
-              Workspace
-            </Text>
-
-            <ChevronDown
-              size={18}
-              color="#64748b"
-              strokeWidth={2.2}
-            />
-          </TouchableOpacity>
+          <View className="relative">
+            <WorkspaceButton isOpen={isOpen} handleIsOpen={handleIsOpen} />
+          </View>
 
           {/* NOTIFICATIONS */}
           <TouchableOpacity
@@ -128,6 +108,7 @@ export default function TopNavBar() {
           </TouchableOpacity>
         </View>
       </View>
+      <LinksDropDown isOpen={isOpen} handleIsOpen={handleIsOpen} />
     </View>
   );
 }
