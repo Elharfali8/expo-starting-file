@@ -1,24 +1,30 @@
 import "@/global.css";
 
+import { router } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { router } from "expo-router";
-
-import { getToken } from "@/utils/storage";
 
 export default function App() {
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     const token = await getToken();
+
+  //     if (token) {
+  //       router.replace("/(dashboard)");
+  //     } else {
+  //       router.replace("/(auth)/login");
+  //     }
+  //   };
+
+  //   checkAuth();
+  // }, []);
+
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = await getToken();
+    const timer = setTimeout(() => {
+      router.replace("/(dashboard)");
+    }, 0);
 
-      if (token) {
-        router.replace("/(dashboard)");
-      } else {
-        router.replace("/(auth)/login");
-      }
-    };
-
-    checkAuth();
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -27,3 +33,5 @@ export default function App() {
     </View>
   );
 }
+
+
