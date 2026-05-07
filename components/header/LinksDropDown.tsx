@@ -63,7 +63,10 @@ export default function LinksDropDown({ isOpen, handleIsOpen }: Props) {
     >
       <View className="flex-col gap-y-1">
         {navLinks.map((link) => {
-          const isActive = pathname === link.path
+          const isActive =
+  link.path === "/"
+    ? pathname === "/"
+    : pathname.startsWith(link.path)
 
           return (
             <TouchableOpacity
