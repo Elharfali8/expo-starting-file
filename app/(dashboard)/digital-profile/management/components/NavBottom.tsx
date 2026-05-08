@@ -6,6 +6,7 @@ import {
   Images,
   LayoutDashboard,
   Link2,
+  Plus,
   Settings,
   Store,
 } from "lucide-react-native";
@@ -49,8 +50,8 @@ const NavBottom = () => {
     },
     {
       id: 7,
-      title: "paramètres",
-      icon: Settings,
+      title: "plus",
+      icon: Plus,
       child: [
         {
           id: 1,
@@ -112,6 +113,7 @@ const NavBottom = () => {
                     return;
                   }
 
+
                   if (item.path) {
                     router.push(item.path as any);
                   }
@@ -168,7 +170,7 @@ const NavBottom = () => {
                 <View
                   className="
                     absolute
-                    bottom-20
+                    bottom-24
                     right-0
                     bg-white
                     rounded-2xl

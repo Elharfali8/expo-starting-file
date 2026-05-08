@@ -137,9 +137,9 @@ const Services = () => {
                           </TouchableOpacity>
                           <TouchableOpacity
                               activeOpacity={0.8}
-                              className='bg-red-300 h-12 w-12 items-center justify-center rounded-xl'
+                              className='bg-red-400 h-12 w-12 items-center justify-center rounded-xl'
                           >
-                              <Trash size={18} color='red' />
+                              <Trash size={18} color='white' />
                           </TouchableOpacity>
                       </View>
                       
