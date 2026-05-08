@@ -154,7 +154,7 @@ const NavBottom = () => {
                     font-medium
                     ${
                       isActive || isMenuOpen
-                        ? "text-black"
+                        ? "text-blue-500"
                         : "text-slate-500"
                     }
                   `}
