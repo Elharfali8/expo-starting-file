@@ -39,8 +39,6 @@ const StoreLayout = () => {
       showsVerticalScrollIndicator={false}
     >
       <View className="px-4 pt-4 pb-8">
-        <PageTitle title="Boutique" />
-
         <View className="bg-white shadow-md rounded-2xl p-4 mb-6">
           <Text className="text-lg font-semibold text-gray-800">
             Navigation
