@@ -10,8 +10,8 @@ import {
   Modal
 } from "react-native";
 
-import PageTitle from "../../components/PageTitle";
 import { X } from "lucide-react-native";
+import PageTitle from "@/app/(dashboard)/components/PageTitle";
 
 const Settings = () => {
   const [orderMode, setOrderMode] = useState("online");

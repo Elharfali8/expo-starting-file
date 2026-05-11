@@ -1,10 +1,9 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import PageTitle from '../../components/PageTitle'
-import UploadImage from './components/UploadImage'
 import ImageUploader from './components/UploadImage'
 import ImageComponent from './components/ImageComponent'
 import PaginationExample from './components/PaginationExample'
+import PageTitle from '@/app/(dashboard)/components/PageTitle'
 
 const gallery = () => {
   return (

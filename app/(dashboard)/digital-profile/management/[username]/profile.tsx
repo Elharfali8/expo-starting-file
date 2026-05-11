@@ -1,7 +1,7 @@
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
-import PageTitle from '../../components/PageTitle'
 import { CalendarArrowUp, Camera, Pencil, Phone } from 'lucide-react-native'
+import PageTitle from '@/app/(dashboard)/components/PageTitle'
 
 const profile = () => {
   return (

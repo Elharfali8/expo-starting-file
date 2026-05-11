@@ -2,25 +2,25 @@ import * as Clipboard from "expo-clipboard";
 import { Check, Copy, Pen, Plus, X } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-    Image,
-    Linking,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  Linking,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import PageTitle from "../../components/PageTitle";
 
-import FacebookIcon from "../../../../assets/links/facebook.png";
-import GithubIcon from "../../../../assets/links/github.png";
-import GmailIcon from "../../../../assets/links/gmail.png";
-import InstagramIcon from "../../../../assets/links/instagram.png";
-import TiktokIcon from "../../../../assets/links/tiktok.png";
-import WhatsappIcon from "../../../../assets/links/whatsapp.png";
-import XIcon from "../../../../assets/links/x.png";
+import PageTitle from "@/app/(dashboard)/components/PageTitle";
+import FacebookIcon from "@/assets/links/facebook.png";
+import GithubIcon from "@/assets/links/github.png";
+import GmailIcon from "@/assets/links/gmail.png";
+import InstagramIcon from "@/assets/links/instagram.png";
+import TiktokIcon from "@/assets/links/tiktok.png";
+import WhatsappIcon from "@/assets/links/whatsapp.png";
+import XIcon from "@/assets/links/x.png";
 
 type SocialLink = {
   id: number;
@@ -180,20 +180,20 @@ const Links = () => {
               })}
             </View>
           </View>
-              </View>
-              
-              {/* BUTTON */}
-              <View className="mt-6">
-                  <TouchableOpacity
-                onPress={() => setModalVisible(false)}
-                className="bg-slate-900 rounded-2xl py-4  flex-1 items-center flex-row justify-center gap-1"
-                  >
-                      <Plus color='white' size={20} />
-                <Text className="text-white font-semibold capitalize ">
-                   Ajouter un lien
-                </Text>
-              </TouchableOpacity>
-              </View>
+        </View>
+
+        {/* BUTTON */}
+        <View className="mt-6">
+          <TouchableOpacity
+            onPress={() => setModalVisible(false)}
+            className="bg-slate-900 rounded-2xl py-4  flex-1 items-center flex-row justify-center gap-1"
+          >
+            <Plus color="white" size={20} />
+            <Text className="text-white font-semibold capitalize ">
+              Ajouter un lien
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
       {/* MODAL */}
       <Modal

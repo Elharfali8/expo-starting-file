@@ -1,3 +1,4 @@
+import PageTitle from "@/app/(dashboard)/components/PageTitle";
 import {
   Link2,
   PackageSearch,
@@ -13,7 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import PageTitle from "../../components/PageTitle";
 
 const HomeManagement = () => {
   const fasterActions = [

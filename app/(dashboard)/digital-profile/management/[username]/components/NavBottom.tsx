@@ -10,10 +10,11 @@ import {
   Settings,
   Store,
 } from "lucide-react-native";
-import { router, usePathname } from "expo-router";
+import { router, useLocalSearchParams, usePathname } from "expo-router";
 
 const NavBottom = () => {
   const pathname = usePathname();
+  const { username } = useLocalSearchParams();
 
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
@@ -22,31 +23,32 @@ const NavBottom = () => {
       id: 1,
       title: "tables board",
       icon: LayoutDashboard,
-      path: "/digital-profile/management/home",
+      path: `/digital-profile/management/${username}/home`,
     },
     {
       id: 2,
       title: "liens",
       icon: Link2,
-      path: "/digital-profile/management/links",
+      path: `/digital-profile/management/${username}/links`,
+
     },
     {
       id: 3,
       title: "gallerie",
       icon: Images,
-      path: "/digital-profile/management/gallery",
+      path: `/digital-profile/management/${username}/gallery`,
     },
     {
       id: 4,
       title: "services",
       icon: Blocks,
-      path: "/digital-profile/management/services",
+      path: `/digital-profile/management/${username}/services`,
     },
     {
       id: 5,
       title: "boutique",
       icon: Store,
-      path: "/digital-profile/management/store",
+      path: `/digital-profile/management/${username}/store`,
     },
     {
       id: 7,
@@ -57,13 +59,13 @@ const NavBottom = () => {
           id: 1,
           title: "paramètres",
           icon: Settings,
-          path: "/digital-profile/management/settings",
+          path: `/digital-profile/management/${username}/setting`,
         },
         {
           id: 2,
           title: "mon profile",
           icon: CircleUser,
-          path: "/digital-profile/management/profile",
+          path: `/digital-profile/management/${username}/profile`,
         },
       ],
     },

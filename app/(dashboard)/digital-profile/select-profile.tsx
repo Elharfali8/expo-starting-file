@@ -9,16 +9,19 @@ export default function SelectProfile() {
     {
       id: 1,
       title: "yascript",
+      key: 'yascript',
       image: `${process.env.EXPO_PUBLIC_MEDIA_URL}/public/52/digital_profile/profile_image/c7fe3d8757.webp`,
     },
     {
       id: 2,
       title: "kasbah grill",
+      key: 'kasbahGrill.ma',
       image: `${process.env.EXPO_PUBLIC_MEDIA_URL}/public/52/digital_profile/profile_image/ca5dd9dc37.webp`,
     },
     {
       id: 3,
       title: "6eme",
+      key: '6eme',
       image: `${process.env.EXPO_PUBLIC_MEDIA_URL}/public/138/digital_profile/profile_image/89363bf51a.webp`,
     },
   ];
@@ -58,7 +61,7 @@ export default function SelectProfile() {
             key={item.id}
             activeOpacity={0.8}
             onPress={() =>
-              router.push("/(dashboard)/digital-profile/management" as any)
+              router.push(`/digital-profile/management/${item.key}` as any)
             }
             className="w-[48%] bg-white border border-slate-200 rounded-2xl p-4 items-center mb-4"
             style={{ gap: 8, position: "relative" }}

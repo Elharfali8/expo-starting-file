@@ -1,4 +1,5 @@
 import { loginUser } from "@/services/api";
+import { saveToken } from "@/utils/storage";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
@@ -27,7 +28,7 @@ const Login = () => {
     setError("");
     try {
       const data = await loginUser(email, password);
-      console.log("token login :", data.token);
+          await saveToken(data.token);
       router.replace("/(dashboard)");
     } catch (e: any) {
       setError(e.message);
