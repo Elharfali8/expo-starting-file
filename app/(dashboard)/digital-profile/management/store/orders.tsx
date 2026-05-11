@@ -141,6 +141,34 @@ const orders = () => {
     currentPage * ITEMS_PER_PAGE,
   );
 
+  if (orders.length < 1) {
+    return (
+      <View className="items-center justify-center py-20 px-6">
+    
+    {/* Icon */}
+    <View className="w-24 h-24 rounded-full bg-gray-100 items-center justify-center mb-6">
+      <Text className="text-5xl">
+        📦
+      </Text>
+    </View>
+
+    {/* Title */}
+    <Text className="text-2xl font-bold text-gray-900 text-center">
+      Aucune commande
+    </Text>
+
+    {/* Description */}
+    <Text className="text-gray-500 text-center mt-3 leading-6">
+      Les commandes apparaîtront ici
+      une fois que vos clients
+      commenceront à acheter.
+    </Text>
+
+    
+  </View>
+    )
+  }
+
   return (
     <>
       <View>
@@ -207,7 +235,15 @@ const orders = () => {
                 <TouchableOpacity
                   key={item.id}
                   activeOpacity={0.85}
-                  className="bg-white border border-gray-100 rounded-3xl p-4 shadow-sm"
+                  className={`bg-white border border-gray-100 rounded-3xl p-4 shadow-sm border-l-4 ${
+                          pending
+                            ? "border-l-yellow-400"
+                            : delivered
+                              ? "border-l-green-700"
+                              : confirmed
+                                ? "border-l-blue-700"
+                                : "border-l-red-700"
+                        }`}
                 >
                   {/* Header */}
                   <View className="flex-row items-start justify-between">
