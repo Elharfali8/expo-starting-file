@@ -2,6 +2,9 @@ import { Filter, Plus, Search, Trash2, X } from "lucide-react-native";
 import { useState } from "react";
 import { Image, Modal, Text, TextInput, TouchableOpacity, View, ScrollView } from "react-native";
 
+import MaskedView from '@react-native-masked-view/masked-view'
+import { LinearGradient } from 'expo-linear-gradient'
+
 const Store = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [pickedCategory, setPickedCategory] = useState<string>('toutes')
