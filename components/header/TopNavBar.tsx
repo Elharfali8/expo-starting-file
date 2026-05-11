@@ -1,28 +1,19 @@
-import { View, TouchableOpacity, Text } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
+import { Text, TouchableOpacity, View } from "react-native";
 
-import {
-  Bell,
-  ChevronDown,
-  LayoutGrid,
-  UserRound,
-} from "lucide-react-native";
+import { Bell, UserRound } from "lucide-react-native";
 import WorkspaceButton from "./WorkspaceButton";
-import { useState } from "react";
-import LinksDropDown from "./LinksDropDown";
 
-export default function TopNavBar() {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+type Props = {
+  isOpen: boolean;
+  handleIsOpen: () => void;
+};
 
-  const handleIsOpen = () => {
-    setIsOpen((prev) => !prev)
-  }
-
+export default function TopNavBar({ isOpen, handleIsOpen }: Props) {
   return (
     <View className="bg-white border-b border-slate-200">
       <View className="h-18 px-4 flex-row items-center justify-between">
-        
         {/* LEFT */}
         <TouchableOpacity
           activeOpacity={0.9}
@@ -40,7 +31,6 @@ export default function TopNavBar() {
 
         {/* RIGHT */}
         <View className="flex-row items-center gap-3">
-          
           {/* WORKSPACE */}
           <View className="relative">
             <WorkspaceButton isOpen={isOpen} handleIsOpen={handleIsOpen} />
@@ -61,11 +51,7 @@ export default function TopNavBar() {
               relative
             "
           >
-            <Bell
-              size={20}
-              color="#0f172a"
-              strokeWidth={2.2}
-            />
+            <Bell size={20} color="#0f172a" strokeWidth={2.2} />
 
             {/* BADGE */}
             <View
@@ -82,9 +68,7 @@ export default function TopNavBar() {
                 justify-center
               "
             >
-              <Text className="text-white text-[10px] font-bold">
-                9+
-              </Text>
+              <Text className="text-white text-[10px] font-bold">9+</Text>
             </View>
           </TouchableOpacity>
 
@@ -100,15 +84,10 @@ export default function TopNavBar() {
               justify-center
             "
           >
-            <UserRound
-              size={20}
-              color="#64748b"
-              strokeWidth={2.2}
-            />
+            <UserRound size={20} color="#64748b" strokeWidth={2.2} />
           </TouchableOpacity>
         </View>
       </View>
-      <LinksDropDown isOpen={isOpen} handleIsOpen={handleIsOpen} />
     </View>
   );
 }
