@@ -87,7 +87,7 @@ const Categories = () => {
       </TouchableOpacity>
 
       {/* CONTENT */}
-      <View className="bg-white shadow-md rounded-2xl p-4 mt-4">
+      <View className="bg-white shadow-md rounded-2xl mt-4">
         {/* Search */}
         <View className="flex-row items-center bg-white border border-gray-200 rounded-2xl px-3 h-12 shadow-sm">
           <Search size={20} color="#6B7280" style={{ marginRight: 10 }} />
