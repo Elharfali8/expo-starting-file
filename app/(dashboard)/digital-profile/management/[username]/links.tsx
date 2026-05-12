@@ -13,15 +13,8 @@ import {
 } from "react-native";
 
 import PageTitle from "@/app/(dashboard)/components/PageTitle";
-import FacebookIcon from "@/assets/links/facebook.png";
-import GithubIcon from "@/assets/links/github.png";
-import GmailIcon from "@/assets/links/gmail.png";
-import InstagramIcon from "@/assets/links/instagram.png";
-import TiktokIcon from "@/assets/links/tiktok.png";
-import WhatsappIcon from "@/assets/links/whatsapp.png";
-import XIcon from "@/assets/links/x.png";
 import { useLocalSearchParams } from "expo-router";
-import { getAllSocialLinks } from "../../api/store/links";
+import { getAllSocialLinks, updateSocialLink } from "../../api/store/links";
 
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Loading from "./components/Loading";
@@ -30,6 +23,7 @@ type SocialLink = {
   id: number;
   title: string;
   icon: any;
+  platform_name?: string;
 };
 
 const Links = () => {
@@ -41,6 +35,8 @@ const Links = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [links, setLinks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const [linkValue, setLinkValue] = useState("");
 
   useEffect(() => {
     const fetchAllLinks = async () => {
@@ -127,7 +123,30 @@ const Links = () => {
 
   const handleOpenModal = (item: any) => {
     setSelectedLink(item);
+    setLinkValue(item.value || "");
     setModalVisible(true);
+  };
+
+  const handleUpdateLink = async () => {
+    try {
+      if (!selectedLink) return;
+
+      await updateSocialLink({
+        username: String(username),
+        platform_name: selectedLink.platform_name,
+        value: linkValue,
+      });
+
+      setLinks((prev) =>
+        prev.map((link) =>
+          link.id === selectedLink.id ? { ...link, value: linkValue } : link,
+        ),
+      );
+
+      setModalVisible(false);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleCopy = async () => {
@@ -141,9 +160,7 @@ const Links = () => {
   };
 
   if (loading) {
-    return (
-      <Loading />
-    )
+    return <Loading />;
   }
 
   return (
@@ -281,10 +298,12 @@ const Links = () => {
 
             <View className="mb-4">
               <Text className="text-slate-500 mb-1.5">
-                {selectedLink?.title}
+                {selectedLink?.platform_name}
               </Text>
               <TextInput
-                placeholder={`Lien ${selectedLink?.title.toLowerCase()}`}
+                value={linkValue}
+                onChangeText={setLinkValue}
+                placeholder={`Lien ${selectedLink?.platform_name?.toLowerCase()}`}
                 placeholderTextColor="#94a3b8"
                 className="w-full bg-slate-100 border border-slate-200 rounded-2xl px-4 py-4 text-slate-900 mb-4"
               />
@@ -292,7 +311,7 @@ const Links = () => {
 
             <View className="flex-row items-center justify-between gap-3">
               <TouchableOpacity
-                onPress={() => setModalVisible(false)}
+                onPress={handleUpdateLink}
                 className="bg-slate-900 rounded-2xl py-4 items-center flex-1"
               >
                 <Text className="text-white font-semibold capitalize">
