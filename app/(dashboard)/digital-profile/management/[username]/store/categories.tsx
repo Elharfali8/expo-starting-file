@@ -1,35 +1,45 @@
+import { useLocalSearchParams } from "expo-router";
 import { Pencil, Plus, Search, Trash2, X } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SwipeListView } from "react-native-swipe-list-view";
-
-type Category = {
-  id: number;
-  category: string;
-};
+import { getAllCategories } from "../../../api/store/categories";
 
 const Categories = () => {
-  const [categories, setCategories] = useState<Category[]>([
-    { id: 1, category: "Toutes" },
-    { id: 2, category: "En attente" },
-    { id: 3, category: "Confirmée" },
-    { id: 4, category: "Livrée" },
-    { id: 5, category: "Annulée" },
-  ]);
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
+  const { username } = useLocalSearchParams();
+
+  const mediaUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
+
+  useEffect(() => {
+    const fetchAllCategories = async () => {
+      try {
+        setLoading(true);
+        if (typeof username !== "string") return;
+        const res = await getAllCategories({ username });
+        setCategories(res);
+      } catch (error: any) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAllCategories();
+  }, [username]);
 
   // ── Edit modal ──────────────────────────────────────────────────────────────
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null,
-  );
+  const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
   const [editValue, setEditValue] = useState("");
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -38,14 +48,14 @@ const Categories = () => {
   const [actionModalVisible, setActionModalVisible] = useState(false);
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
-  const openEditModal = (item: Category) => {
+  const openEditModal = (item: any) => {
     setSelectedCategory(item);
     setEditValue(item.category);
     setActionModalVisible(false);
     setEditModalVisible(true);
   };
 
-  const openActionModal = (item: Category) => {
+  const openActionModal = (item: any) => {
     setSelectedCategory(item);
     setActionModalVisible(true);
   };
@@ -61,7 +71,7 @@ const Categories = () => {
   };
 
   // Opens confirm modal (called from swipe button or action modal)
-  const confirmDelete = (item: Category) => {
+  const confirmDelete = (item: any) => {
     setSelectedCategory(item);
     setActionModalVisible(false); // close action sheet if open
     setDeleteModalVisible(true);
@@ -73,6 +83,18 @@ const Categories = () => {
     setCategories((prev) => prev.filter((c) => c.id !== selectedCategory.id));
     setDeleteModalVisible(false);
   };
+
+  //
+  const ITEMS_PER_PAGE = 6;
+
+  const [page, setPage] = useState(1);
+
+  const totalPages = Math.ceil(categories.length / ITEMS_PER_PAGE);
+
+  const paginatedCategories = categories.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE,
+  );
 
   // ────────────────────────────────────────────────────────────────────────────
   return (
@@ -87,7 +109,7 @@ const Categories = () => {
       </TouchableOpacity>
 
       {/* CONTENT */}
-      <View className="bg-white shadow-md rounded-2xl mt-4">
+      <View className="bg-white shadow-md rounded-2xl mt-4 p-4">
         {/* Search */}
         <View className="flex-row items-center bg-white border border-gray-200 rounded-2xl px-3 h-12 shadow-sm">
           <Search size={20} color="#6B7280" style={{ marginRight: 10 }} />
@@ -111,7 +133,7 @@ const Categories = () => {
 
         {/* Categories List */}
         <SwipeListView
-          data={categories}
+          data={paginatedCategories}
           keyExtractor={(item) => item.id.toString()}
           rightOpenValue={-140}
           disableRightSwipe
@@ -140,30 +162,108 @@ const Categories = () => {
           )}
           renderItem={({ item }) => (
             <TouchableOpacity
-              activeOpacity={0.8}
+              activeOpacity={0.85}
               onPress={() => openActionModal(item)}
             >
-              <View className="bg-white border border-gray-200 rounded-2xl px-4 py-4 shadow-sm h-24 mb-4">
+              <View className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm mb-4">
                 <View className="flex-row items-center justify-between">
-                  <View className="flex-1">
-                    <Text
-                      numberOfLines={1}
-                      className="text-[16px] font-bold text-gray-900"
-                    >
-                      {item.category}
-                    </Text>
-                    <View className="bg-green-100 self-start px-3 py-1 rounded-full mt-2">
-                      <Text className="text-green-700 text-xs font-semibold">
-                        Actif
+                  {/* LEFT */}
+                  <View className="flex-row items-center flex-1">
+                    {/* IMAGE */}
+                    <View className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100">
+                      <Image
+                        source={{
+                          uri: mediaUrl + item.image_path,
+                        }}
+                        resizeMode="cover"
+                        style={{ width: "100%", height: "100%" }}
+                      />
+                    </View>
+
+                    {/* CONTENT */}
+                    <View className="ml-4 flex-1">
+                      <Text
+                        numberOfLines={1}
+                        className="text-[16px] font-bold text-slate-900"
+                      >
+                        {item.name}
                       </Text>
+
+                      {/* STATUS */}
+                      <View
+                        className={`self-start px-3 py-1 rounded-full mt-3 ${
+                          item.visibility ? "bg-green-100" : "bg-slate-200"
+                        }`}
+                      >
+                        <Text
+                          className={`text-xs font-semibold capitalize ${
+                            item.visibility
+                              ? "text-green-700"
+                              : "text-slate-600"
+                          }`}
+                        >
+                          {item.visibility ? "visible" : "masqué"}
+                        </Text>
+                      </View>
                     </View>
                   </View>
-                  <Text className="text-xs text-gray-400">Swipe</Text>
+
+                  {/* RIGHT */}
+                  <View className="items-end justify-between h-16">
+                    <Text className="text-[11px] text-slate-400 font-medium">
+                      Swipe
+                    </Text>
+
+                    <View className="w-2 h-2 rounded-full bg-slate-300" />
+                  </View>
                 </View>
               </View>
             </TouchableOpacity>
           )}
         />
+        {/* PAGINATION */}
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <View className="flex-row items-center justify-center gap-3 mt-2">
+            <TouchableOpacity
+              disabled={page === 1}
+              onPress={() => setPage((prev) => prev - 1)}
+              className={`px-4 py-2 rounded-xl ${
+                page === 1 ? "bg-slate-200" : "bg-slate-900"
+              }`}
+            >
+              <Text
+                className={`font-medium ${
+                  page === 1 ? "text-slate-400" : "text-white"
+                }`}
+              >
+                Prev
+              </Text>
+            </TouchableOpacity>
+
+            <View className="bg-slate-100 px-4 py-2 rounded-xl border border-slate-200">
+              <Text className="font-semibold text-slate-800">
+                {page} / {totalPages}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              disabled={page === totalPages}
+              onPress={() => setPage((prev) => prev + 1)}
+              className={`px-4 py-2 rounded-xl ${
+                page === totalPages ? "bg-slate-200" : "bg-slate-900"
+              }`}
+            >
+              <Text
+                className={`font-medium ${
+                  page === totalPages ? "text-slate-400" : "text-white"
+                }`}
+              >
+                Next
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {/* ── ACTION MODAL ─────────────────────────────────────────────────────── */}

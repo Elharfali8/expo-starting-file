@@ -21,6 +21,7 @@ import InstagramIcon from "@/assets/links/instagram.png";
 import TiktokIcon from "@/assets/links/tiktok.png";
 import WhatsappIcon from "@/assets/links/whatsapp.png";
 import XIcon from "@/assets/links/x.png";
+import { useLocalSearchParams } from "expo-router";
 
 type SocialLink = {
   id: number;
@@ -29,7 +30,8 @@ type SocialLink = {
 };
 
 const Links = () => {
-  const profileUrl = "https://www.digitalprofile.ma/yascript";
+  const {username} = useLocalSearchParams()
+  const profileUrl = `https://www.digitalprofile.ma/${username}`;
 
   const [copied, setCopied] = useState(false);
   const [selectedLink, setSelectedLink] = useState<SocialLink | null>(null);
