@@ -13,9 +13,11 @@ import { useLocalSearchParams } from "expo-router";
 import { Pencil, Plus, Trash } from "lucide-react-native";
 import PageTitle from "../../../components/PageTitle";
 import { getServices, Service } from "../../api/services";
+import CreateServiceModal from "./components/services/CreateServiceModal";
 
 const Services = () => {
   const [services, setServices] = useState<Service[]>([]);
+  const [editModalVisible, setEditModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const { username } = useLocalSearchParams();
 
@@ -47,61 +49,60 @@ const Services = () => {
 
   const totalPages = Math.ceil(services.length / ITEMS_PER_PAGE);
 
-const paginatedServices = useMemo(() => {
-  const start = (page - 1) * ITEMS_PER_PAGE;
-  const end = start + ITEMS_PER_PAGE;
+  const paginatedServices = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
 
-  return services.slice(start, end);
-}, [page, services]);
+    return services.slice(start, end);
+  }, [page, services]);
 
-if (loading) {
-  return (
-    <View className="flex-1 items-center justify-center bg-slate-50 px-6">
-      <View className="bg-white border border-slate-200 rounded-3xl px-8 py-10 items-center w-full">
-        <View className="w-16 h-16 rounded-full bg-slate-100 items-center justify-center mb-4">
-          <View className="w-8 h-8 rounded-full bg-slate-900 animate-pulse" />
-        </View>
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-slate-50 px-6">
+        <View className="bg-white border border-slate-200 rounded-3xl px-8 py-10 items-center w-full">
+          <View className="w-16 h-16 rounded-full bg-slate-100 items-center justify-center mb-4">
+            <View className="w-8 h-8 rounded-full bg-slate-900 animate-pulse" />
+          </View>
 
-        <Text className="text-lg font-semibold text-slate-900">
-          Chargement des services
-        </Text>
-
-        <Text className="text-sm text-slate-500 text-center mt-2 leading-5">
-          Veuillez patienter pendant la récupération de vos services.
-        </Text>
-      </View>
-    </View>
-  );
-}
-
-if (!loading && services.length === 0) {
-  return (
-    <View className="flex-1 items-center justify-center bg-slate-50 px-6">
-      <View className="bg-white border border-slate-200 rounded-3xl px-8 py-10 items-center w-full">
-        <View className="w-16 h-16 rounded-full bg-slate-100 items-center justify-center mb-4">
-          <Plus size={28} color="#0f172a" />
-        </View>
-
-        <Text className="text-xl font-semibold text-slate-900">
-          Aucun service
-        </Text>
-
-        <Text className="text-sm text-slate-500 text-center mt-2 leading-5">
-          Vous n’avez encore ajouté aucun service à votre profil.
-        </Text>
-
-        <TouchableOpacity
-          activeOpacity={0.8}
-          className="mt-6 bg-slate-900 px-6 py-4 rounded-2xl"
-        >
-          <Text className="text-white font-semibold">
-            Ajouter un service
+          <Text className="text-lg font-semibold text-slate-900">
+            Chargement des services
           </Text>
-        </TouchableOpacity>
+
+          <Text className="text-sm text-slate-500 text-center mt-2 leading-5">
+            Veuillez patienter pendant la récupération de vos services.
+          </Text>
+        </View>
       </View>
-    </View>
-  );
-}
+    );
+  }
+
+  if (!loading && services.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center bg-slate-50 px-6">
+        <View className="bg-white border border-slate-200 rounded-3xl px-8 py-10 items-center w-full">
+          <View className="w-16 h-16 rounded-full bg-slate-100 items-center justify-center mb-4">
+            <Plus size={28} color="#0f172a" />
+          </View>
+
+          <Text className="text-xl font-semibold text-slate-900">
+            Aucun service
+          </Text>
+
+          <Text className="text-sm text-slate-500 text-center mt-2 leading-5">
+            Vous n’avez encore ajouté aucun service à votre profil.
+          </Text>
+
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => setEditModalVisible(true)}
+            className="mt-6 bg-slate-900 px-6 py-4 rounded-2xl"
+          >
+            <Text className="text-white font-semibold">Ajouter un service</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -118,6 +119,7 @@ if (!loading && services.length === 0) {
         <View className="mt-6">
           <TouchableOpacity
             activeOpacity={0.8}
+            onPress={() => setEditModalVisible(true)}
             className="bg-slate-900 rounded-2xl py-4 flex-row items-center justify-center gap-2"
           >
             <Plus color="white" size={20} />
@@ -211,6 +213,11 @@ if (!loading && services.length === 0) {
           </TouchableOpacity>
         </View>
       </View>
+      {/* MODAL */}
+      <CreateServiceModal
+        editModalVisible={editModalVisible}
+        setEditModalVisible={setEditModalVisible}
+      />
     </ScrollView>
   );
 };

@@ -49,3 +49,71 @@ export async function getServices({
 
   return data.services;
 }
+
+// CREATE A SERVICE
+interface CreateServicePayload {
+  title: string;
+  description: string;
+  price: number;
+  show_price: boolean;
+  is_negotiable: boolean;
+  image: string | null;
+}
+
+interface CreateServiceResponse {
+  message: string;
+  service: Service;
+}
+
+
+export async function createService({
+  username,
+  serviceData,
+}: {
+  username: string;
+  serviceData: CreateServicePayload;
+}): Promise<Service> {
+  const token = await getToken();
+
+  // Build FormData instead of JSON
+  const formData = new FormData();
+  formData.append("title", serviceData.title);
+  formData.append("description", serviceData.description);
+  formData.append("price", String(serviceData.price));
+  formData.append("show_price", String(serviceData.show_price));
+  formData.append("is_negotiable", String(serviceData.is_negotiable));
+
+  if (serviceData.image) {
+    const filename = serviceData.image.split("/").pop() ?? "image.jpg";
+    const ext = filename.split(".").pop()?.toLowerCase() ?? "jpg";
+    const mimeType = ext === "png" ? "image/png" : "image/jpeg";
+
+    // React Native's FormData accepts this object shape for files
+    formData.append("image", {
+      uri: serviceData.image,
+      name: filename,
+      type: mimeType,
+    } as any);
+  }
+
+  const response = await fetch(
+    `${BASE_URL}/users/digital-profile/services/create/${username}`,
+    {
+      method: "POST",
+      headers: {
+        // ⚠️ Do NOT set Content-Type manually — fetch sets it
+        // automatically with the correct boundary for multipart
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    }
+  );
+
+  const data: CreateServiceResponse = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to create service");
+  }
+
+  return data.service;
+}

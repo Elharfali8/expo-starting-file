@@ -21,18 +21,4 @@ export const navLinks: NavLinksProps[] = [
     path: "/digital-profile",
     icon: "user",
   },
-  {
-    id: 3,
-    title: "Book Daba",
-    description: "Gérer vos réservations",
-    path: "/book-daba",
-    icon: "book",
-  },
-  {
-    id: 4,
-    title: "Snap QR",
-    description: "Scanner & partager",
-    path: "/snap-qr",
-    icon: "maximize",
-  },
 ];

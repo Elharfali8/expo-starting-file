@@ -1,35 +1,35 @@
-import PageTitle from "@/app/(dashboard)/components/PageTitle";
-import { router, Slot, usePathname } from "expo-router";
+import { router, Slot, useLocalSearchParams, usePathname } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const StoreLayout = () => {
   const pathname = usePathname();
+  const { username } = useLocalSearchParams();
 
   const storeLinks = [
     {
       id: 1,
       title: "produits",
-      path: "/digital-profile/management/store",
+      path: `/digital-profile/management/${username}/store`,
     },
     {
       id: 2,
       title: "commandes",
-      path: "/digital-profile/management/store/orders",
+      path: `/digital-profile/management/${username}/store/orders`,
     },
     {
       id: 3,
       title: "catégories",
-      path: "/digital-profile/management/store/categories",
+      path: `/digital-profile/management/${username}/store/categories`,
     },
     {
       id: 4,
       title: "clients",
-      path: "/digital-profile/management/store/customers",
+      path: `/digital-profile/management/${username}/store/customers`,
     },
     {
       id: 5,
       title: "avis",
-      path: "/digital-profile/management/store/reviews",
+      path: `/digital-profile/management/${username}/store/reviews`,
     },
   ];
 
@@ -45,7 +45,7 @@ const StoreLayout = () => {
           </Text>
 
           <View className="items-center flex-row flex-wrap gap-4 mt-4">
-            {storeLinks.map((item:any) => {
+            {storeLinks.map((item: any) => {
               const isActive = pathname === item.path;
 
               return (
@@ -65,11 +65,7 @@ const StoreLayout = () => {
                   <Text
                     className={`
                       capitalize font-medium
-                      ${
-                        isActive
-                          ? "text-white"
-                          : "text-gray-700"
-                      }
+                      ${isActive ? "text-white" : "text-gray-700"}
                     `}
                   >
                     {item.title}
