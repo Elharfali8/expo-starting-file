@@ -1,8 +1,7 @@
 import * as Clipboard from "expo-clipboard";
 import { Check, Copy, Pen, Plus, X } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Image,
   Linking,
   Modal,
   ScrollView,
@@ -22,6 +21,10 @@ import TiktokIcon from "@/assets/links/tiktok.png";
 import WhatsappIcon from "@/assets/links/whatsapp.png";
 import XIcon from "@/assets/links/x.png";
 import { useLocalSearchParams } from "expo-router";
+import { getAllSocialLinks } from "../../api/store/links";
+
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import Loading from "./components/Loading";
 
 type SocialLink = {
   id: number;
@@ -30,12 +33,97 @@ type SocialLink = {
 };
 
 const Links = () => {
-  const {username} = useLocalSearchParams()
+  const { username } = useLocalSearchParams();
   const profileUrl = `https://www.digitalprofile.ma/${username}`;
 
   const [copied, setCopied] = useState(false);
   const [selectedLink, setSelectedLink] = useState<SocialLink | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [links, setLinks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchAllLinks = async () => {
+      try {
+        setLoading(true);
+        if (typeof username !== "string") return;
+        const res = await getAllSocialLinks({ username });
+        setLinks(res);
+      } catch (error: any) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAllLinks();
+  }, [username]);
+
+  // render social media icon
+  const getPlatformIcon = (platform: string) => {
+    const name = platform.toLowerCase();
+
+    switch (name) {
+      case "instagram":
+        return (
+          <FontAwesome6 name="square-instagram" size={38} color="#E1306C" />
+        );
+
+      case "facebook":
+        return (
+          <FontAwesome6 name="square-facebook" size={38} color="#1877F2" />
+        );
+
+      case "whatsapp":
+        return (
+          <FontAwesome6 name="square-whatsapp" size={38} color="#25D366" />
+        );
+
+      case "linkedin":
+        return <FontAwesome6 name="linkedin" size={38} color="#0A66C2" />;
+
+      case "github":
+        return <FontAwesome6 name="square-github" size={38} color="#111827" />;
+
+      case "twitter":
+        return <FontAwesome6 name="square-x-twitter" size={38} color="#000" />;
+
+      case "x":
+        return <FontAwesome6 name="square-x-twitter" size={38} color="#000" />;
+
+      case "youtube":
+        return <FontAwesome6 name="youtube" size={38} color="#FF0000" />;
+
+      case "telegram":
+        return <FontAwesome6 name="telegram" size={38} color="#229ED9" />;
+
+      case "tiktok":
+        return <FontAwesome6 name="tiktok" size={38} color="#000" />;
+
+      case "discord":
+        return <FontAwesome6 name="discord" size={38} color="#5865F2" />;
+
+      case "snapchat":
+        return <FontAwesome6 name="snapchat" size={38} color="#FACC15" />;
+
+      case "pinterest":
+        return <FontAwesome6 name="pinterest" size={38} color="#E60023" />;
+
+      case "reddit":
+        return <FontAwesome6 name="reddit" size={38} color="#FF4500" />;
+
+      case "spotify":
+        return <FontAwesome6 name="spotify" size={38} color="#1DB954" />;
+
+      case "google":
+        return <FontAwesome6 name="google" size={38} color="#4285F4" />;
+
+      case "tripadvisor":
+        return <FontAwesome6 name="tripadvisor" size={38} color="#34E0A1" />;
+
+      default:
+        return <FontAwesome6 name="globe" size={38} color="#64748B" />;
+    }
+  };
 
   const handleOpenModal = (item: any) => {
     setSelectedLink(item);
@@ -52,44 +140,11 @@ const Links = () => {
     }, 2000);
   };
 
-  // links
-  const socialLinks: SocialLink[] = [
-    {
-      id: 1,
-      title: "Instagram",
-      icon: InstagramIcon,
-    },
-    {
-      id: 2,
-      title: "Facebook",
-      icon: FacebookIcon,
-    },
-    {
-      id: 3,
-      title: "WhatsApp",
-      icon: WhatsappIcon,
-    },
-    {
-      id: 4,
-      title: "X",
-      icon: XIcon,
-    },
-    {
-      id: 5,
-      title: "GitHub",
-      icon: GithubIcon,
-    },
-    {
-      id: 6,
-      title: "Gmail",
-      icon: GmailIcon,
-    },
-    {
-      id: 7,
-      title: "TikTok",
-      icon: TiktokIcon,
-    },
-  ];
+  if (loading) {
+    return (
+      <Loading />
+    )
+  }
 
   return (
     <ScrollView
@@ -151,12 +206,10 @@ const Links = () => {
           </View>
           <View className="bg-white p-5 rounded-2xl shadow-sm">
             <View className="flex-row flex-wrap gap-4">
-              {socialLinks.map((item) => {
-                const { id, title, icon } = item;
-
+              {links.map((item) => {
                 return (
                   <View
-                    key={id}
+                    key={item.id}
                     className="w-[30%] bg-slate-50 border border-slate-200 rounded-2xl p-4 items-center justify-center relative"
                   >
                     <TouchableOpacity
@@ -168,14 +221,12 @@ const Links = () => {
                       </View>
                     </TouchableOpacity>
 
-                    <Image
-                      source={icon}
-                      className="w-12 h-12 mb-3"
-                      resizeMode="contain"
-                    />
+                    <View className="w-14 h-14 rounded-2xl  items-center justify-center">
+                      {getPlatformIcon(item.platform_name)}
+                    </View>
 
                     <Text className="text-sm font-medium text-slate-800">
-                      {title}
+                      {item.platform_name}
                     </Text>
                   </View>
                 );
