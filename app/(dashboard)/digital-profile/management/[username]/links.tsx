@@ -14,7 +14,11 @@ import {
 
 import PageTitle from "@/app/(dashboard)/components/PageTitle";
 import { useLocalSearchParams } from "expo-router";
-import { getAllSocialLinks, updateSocialLink } from "../../api/store/links";
+import {
+  createSocialLink,
+  getAllSocialLinks,
+  updateSocialLink,
+} from "../../api/store/links";
 
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Loading from "./components/Loading";
@@ -38,6 +42,16 @@ const Links = () => {
 
   const [linkValue, setLinkValue] = useState("");
 
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+
+  const [newPlatform, setNewPlatform] = useState("");
+
+  const [newValue, setNewValue] = useState("");
+
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+
+  const [successMessage, setSuccessMessage] = useState("");
+
   useEffect(() => {
     const fetchAllLinks = async () => {
       try {
@@ -56,6 +70,10 @@ const Links = () => {
 
   // render social media icon
   const getPlatformIcon = (platform: string) => {
+    if (!platform) {
+      return <FontAwesome6 name="globe" size={38} color="#64748B" />;
+    }
+
     const name = platform.toLowerCase();
 
     switch (name) {
@@ -127,6 +145,7 @@ const Links = () => {
     setModalVisible(true);
   };
 
+  // UPDATE LINK
   const handleUpdateLink = async () => {
     try {
       if (!selectedLink) return;
@@ -144,8 +163,44 @@ const Links = () => {
       );
 
       setModalVisible(false);
+
+      // SUCCESS
+      setSuccessMessage("Lien modifié avec succès");
+      setSuccessModalVisible(true);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  // CREATE LINK
+  const handleCreateLink = async () => {
+    try {
+      setLoading(true);
+
+      if (typeof username !== "string") return;
+
+      await createSocialLink({
+        username,
+        platform_name: newPlatform,
+        value: newValue,
+      });
+
+      const updatedLinks = await getAllSocialLinks({ username });
+
+      setLinks(updatedLinks);
+
+      setCreateModalVisible(false);
+
+      setNewPlatform("");
+      setNewValue("");
+
+      // SUCCESS
+      setSuccessMessage("Lien ajouté avec succès");
+      setSuccessModalVisible(true);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -255,17 +310,18 @@ const Links = () => {
         {/* BUTTON */}
         <View className="mt-6">
           <TouchableOpacity
-            onPress={() => setModalVisible(false)}
-            className="bg-slate-900 rounded-2xl py-4  flex-1 items-center flex-row justify-center gap-1"
+            onPress={() => setCreateModalVisible(true)}
+            className="bg-slate-900 rounded-2xl py-4 flex-1 items-center flex-row justify-center gap-1"
           >
             <Plus color="white" size={20} />
-            <Text className="text-white font-semibold capitalize ">
+
+            <Text className="text-white font-semibold capitalize">
               Ajouter un lien
             </Text>
           </TouchableOpacity>
         </View>
       </View>
-      {/* MODAL */}
+      {/* EDIT MODAL */}
       <Modal
         visible={modalVisible}
         transparent
@@ -328,6 +384,142 @@ const Links = () => {
               </TouchableOpacity>
             </View>
             {/*  */}
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+      {/* CREATE MODAL */}
+      {/* CREATE MODAL */}
+      <Modal
+        visible={createModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setCreateModalVisible(false)}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setCreateModalVisible(false)}
+          className="flex-1 bg-slate-500/70 justify-end"
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+            className="bg-white rounded-t-3xl px-6 pt-6 pb-10"
+          >
+            {/* HANDLE */}
+            <View className="w-10 h-1 bg-slate-200 rounded-full self-center mb-6" />
+
+            {/* HEADER */}
+            <View className="flex-row items-center justify-between mb-6">
+              <View>
+                <Text className="text-xl font-bold text-slate-900">
+                  Ajouter un lien
+                </Text>
+
+                <Text className="text-sm text-slate-400 mt-1">
+                  Ajoutez un nouveau réseau social
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => setCreateModalVisible(false)}
+                className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center"
+              >
+                <X size={18} color="#475569" />
+              </TouchableOpacity>
+            </View>
+
+            {/* PLATFORM */}
+            <View className="mb-4">
+              <Text className="text-sm font-semibold text-slate-700 mb-2">
+                Plateforme
+              </Text>
+
+              <TextInput
+                value={newPlatform}
+                onChangeText={setNewPlatform}
+                placeholder="instagram"
+                placeholderTextColor="#94a3b8"
+                className="bg-slate-100 border border-slate-200 rounded-2xl px-4 py-4 text-slate-900"
+              />
+            </View>
+
+            {/* VALUE */}
+            <View className="mb-6">
+              <Text className="text-sm font-semibold text-slate-700 mb-2">
+                Lien / valeur
+              </Text>
+
+              <TextInput
+                value={newValue}
+                onChangeText={setNewValue}
+                placeholder="@yascript.ma"
+                placeholderTextColor="#94a3b8"
+                className="bg-slate-100 border border-slate-200 rounded-2xl px-4 py-4 text-slate-900"
+              />
+            </View>
+
+            {/* ACTIONS */}
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setCreateModalVisible(false)}
+                className="flex-1 border border-slate-200 rounded-2xl py-4 items-center"
+              >
+                <Text className="text-slate-600 font-semibold">Annuler</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleCreateLink}
+                className="flex-1 bg-slate-900 rounded-2xl py-4 items-center"
+              >
+                <Text className="text-white font-semibold">Ajouter</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+      {/* SUCCESS MODAL */}
+      {/* SUCCESS MODAL */}
+      <Modal
+        visible={successModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSuccessModalVisible(false)}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setSuccessModalVisible(false)}
+          className="flex-1 bg-gray-400/70 items-center justify-center px-6"
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+            className="bg-white w-full rounded-3xl p-6 items-center"
+          >
+            {/* ICON */}
+            <View className="w-20 h-20 rounded-full bg-green-100 items-center justify-center mb-5">
+              <Check size={40} color="#16A34A" />
+            </View>
+
+            {/* TITLE */}
+            <Text className="text-2xl font-bold text-slate-900 mb-2">
+              Succès
+            </Text>
+
+            {/* MESSAGE */}
+            <Text className="text-slate-500 text-center mb-6">
+              {successMessage}
+            </Text>
+
+            {/* BUTTON */}
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setSuccessModalVisible(false)}
+              className="bg-slate-900 rounded-2xl py-4 w-full items-center"
+            >
+              <Text className="text-white font-semibold">Continuer</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
