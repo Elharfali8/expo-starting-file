@@ -117,3 +117,50 @@ export async function createService({
 
   return data.service;
 }
+
+// UPDATE SERVICE
+interface UpdateServicePayload {
+  title: string;
+  description: string;
+  price: number;
+  show_price: boolean;
+  is_negotiable: boolean;
+  image: string | null;
+}
+
+interface UpdateServiceResponse {
+  message: string;
+  service: Service;
+}
+
+export async function updateService({
+  serviceId,
+  username,
+  serviceData,
+}: {
+  serviceId: number;
+  username: string;
+  serviceData: UpdateServicePayload;
+}): Promise<Service> {
+  const token = await getToken();
+
+  const response = await fetch(
+    `${BASE_URL}/users/digital-profile/services/update/${serviceId}/${username}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(serviceData),
+    }
+  );
+
+  const data: UpdateServiceResponse = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to update service");
+  }
+
+  return data.service;
+}

@@ -14,11 +14,14 @@ import { Pencil, Plus, Trash } from "lucide-react-native";
 import PageTitle from "../../../components/PageTitle";
 import { getServices, Service } from "../../api/services";
 import CreateServiceModal from "./components/services/CreateServiceModal";
+import EditServiceModal from "./components/services/EditServiceModal";
 
 const Services = () => {
   const [services, setServices] = useState<Service[]>([]);
-  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+const [editModalVisible, setEditModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const { username } = useLocalSearchParams();
 
   const mediaUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
@@ -94,7 +97,7 @@ const Services = () => {
 
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => setEditModalVisible(true)}
+            onPress={() => setCreateModalVisible(true)}
             className="mt-6 bg-slate-900 px-6 py-4 rounded-2xl"
           >
             <Text className="text-white font-semibold">Ajouter un service</Text>
@@ -119,7 +122,7 @@ const Services = () => {
         <View className="mt-6">
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => setEditModalVisible(true)}
+            onPress={() => setCreateModalVisible(true)}
             className="bg-slate-900 rounded-2xl py-4 flex-row items-center justify-center gap-2"
           >
             <Plus color="white" size={20} />
@@ -129,48 +132,77 @@ const Services = () => {
         </View>
 
         {/* SERVICES */}
-        <View className="mt-6 gap-4">
-          {paginatedServices.map((item) => (
-            <View
-              key={item.id}
-              className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm"
+        <View className="mt-5 gap-y-4">
+  {paginatedServices.map((item) => (
+    <View
+      key={item.id}
+      className="bg-white rounded-[28px] overflow-hidden border border-neutral-200"
+    >
+      {/* Image */}
+      <Image
+        source={{ uri: mediaUrl + item.image_path }}
+        className="w-full h-52"
+        resizeMode="cover"
+      />
+
+      {/* Content */}
+      <View className="p-5">
+        {/* Top Row */}
+        <View className="flex-row items-start justify-between">
+          <View className="flex-1 pr-3">
+            <Text
+              numberOfLines={1}
+              className="text-[18px] font-semibold text-neutral-900"
             >
-              <Image
-                source={{ uri: mediaUrl + item.image_path }}
-                className="w-full h-48"
-                resizeMode="cover"
-              />
+              {item.title}
+            </Text>
 
-              <View className="p-5">
-                <Text className="text-lg font-semibold text-slate-900 mb-2">
-                  {item.title}
-                </Text>
+            <Text
+              numberOfLines={2}
+              className="text-[14px] leading-6 text-neutral-500 mt-2"
+            >
+              {item.description}
+            </Text>
+          </View>
 
-                <Text className="text-slate-500 leading-6">
-                  {item.description}
-                </Text>
-
-                <View className="flex-row items-center gap-x-2 mt-2">
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    className="flex-1 flex-row items-center justify-center gap-2 bg-green-300 text-white h-12 rounded-xl"
-                  >
-                    <Pencil size={18} color="green" />
-                    <Text className="font-medium capitalize text-lg text-green-800">
-                      modifier
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    className="bg-red-400 h-12 w-12 items-center justify-center rounded-xl"
-                  >
-                    <Trash size={18} color="white" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          ))}
+          {/* Price */}
+          <View className="bg-neutral-100 px-3 py-2 rounded-2xl">
+            <Text className="text-[13px] font-semibold text-neutral-900">
+              {item.price ? `${item.price} MAD` : "Flexible"}
+            </Text>
+          </View>
         </View>
+
+        {/* Bottom Actions */}
+        <View className="flex-row items-center gap-x-3 mt-5">
+          {/* Edit */}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+              setSelectedService(item);
+              setEditModalVisible(true);
+            }}
+            className="flex-1 h-12 rounded-2xl bg-blue-400 flex-row items-center justify-center gap-x-2"
+          >
+            <Pencil size={16} color="white" />
+
+            <Text className="text-white font-medium text-[15px]">
+              Modifier
+            </Text>
+          </TouchableOpacity>
+
+          {/* Delete */}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            className="h-12 w-12 rounded-2xl border border-neutral-200 items-center justify-center bg-white"
+          >
+            <Trash size={18} color="red" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  ))}
+</View>
 
         {/* PAGINATION */}
         <View className="flex-row items-center justify-center gap-3 mt-6">
@@ -213,11 +245,19 @@ const Services = () => {
           </TouchableOpacity>
         </View>
       </View>
-      {/* MODAL */}
+      {/* CREATE MODAL */}
       <CreateServiceModal
-        editModalVisible={editModalVisible}
-        setEditModalVisible={setEditModalVisible}
+        createModalVisible={createModalVisible}
+        setCreateModalVisible={setCreateModalVisible}
       />
+      {/* EDIT MODAL */}
+      {selectedService && (
+  <EditServiceModal
+    editModalVisible={editModalVisible}
+    setEditModalVisible={setEditModalVisible}
+    service={selectedService}
+  />
+)}
     </ScrollView>
   );
 };

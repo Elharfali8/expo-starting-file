@@ -1,4 +1,6 @@
-import { createService } from "@/app/(dashboard)/digital-profile/api/services";
+import {
+    Service
+} from "@/app/(dashboard)/digital-profile/api/services";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams } from "expo-router";
 import {
@@ -20,29 +22,40 @@ import {
     View,
 } from "react-native";
 
+import { updateService } from "@/app/(dashboard)/digital-profile/api/services";
+
 type Props = {
-  createModalVisible: boolean;
-  setCreateModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  editModalVisible: boolean;
+  setEditModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  service: Service;
 };
 
 const pricingOptions = ["Fixed Price", "Starting From", "Hourly Rate"];
 
-const CreateServiceModal = ({
-  createModalVisible,
-  setCreateModalVisible,
+const EditServiceModal = ({
+  editModalVisible,
+  setEditModalVisible,
+  service,
 }: Props) => {
-  const [serviceTitle, setServiceTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [pricingType, setPricingType] = useState("Fixed Price");
-  const [showPricingOptions, setShowPricingOptions] = useState(false);
-  const [image, setImage] = useState<string | null>(null);
+  const [serviceTitle, setServiceTitle] = useState(service.title);
+
+  const [description, setDescription] = useState(service.description);
+
+    const [price, setPrice] = useState(String(service.price || ""));
+    const [pricingType, setPricingType] = useState("Fixed Price");
+
+const [showPricingOptions, setShowPricingOptions] =
+  useState(false);
+
+  const [image, setImage] = useState<string | null>(service.image_path);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSuccess, setIsSuccess] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(false);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
   const { username } = useLocalSearchParams();
+
+  const mediaUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
 
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -82,27 +95,28 @@ const CreateServiceModal = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
+  const handleUpdate = async () => {
     if (!validate()) return;
 
     try {
       setLoading(true);
 
-      await createService({
+      await updateService({
+        serviceId: service.id,
         username: String(username),
         serviceData: {
           title: serviceTitle,
           description,
           price: Number(price),
-          show_price: false,
+          show_price: true,
           is_negotiable: false,
-          image: image || null,
+          image,
         },
       });
 
       setIsSuccess(true);
     } catch (error) {
-      console.log("CREATE SERVICE ERROR:", error);
+      console.log("UPDATE SERVICE ERROR:", error);
     } finally {
       setLoading(false);
     }
@@ -110,7 +124,7 @@ const CreateServiceModal = ({
 
   const handleSuccessClose = () => {
     setIsSuccess(false);
-    setCreateModalVisible(false);
+    setEditModalVisible(false);
     setServiceTitle("");
     setDescription("");
     setPrice("");
@@ -119,18 +133,16 @@ const CreateServiceModal = ({
     setErrors({});
   };
 
-  // POST THE DATA
-
   return (
     <Modal
-      visible={createModalVisible}
+      visible={editModalVisible}
       transparent
       animationType="fade"
-      onRequestClose={() => setCreateModalVisible(false)}
+      onRequestClose={() => setEditModalVisible(false)}
     >
       <Pressable
         className="flex-1 bg-gray-300/70 items-center justify-center px-4"
-        onPress={() => setCreateModalVisible(false)}
+        onPress={() => setEditModalVisible(false)}
       >
         <Pressable onPress={(e) => e.stopPropagation()} className="w-full">
           {/* ── SUCCESS STATE ── */}
@@ -163,7 +175,7 @@ const CreateServiceModal = ({
                 </Text>
                 <TouchableOpacity
                   activeOpacity={0.8}
-                  onPress={() => setCreateModalVisible(false)}
+                  onPress={() => setEditModalVisible(false)}
                   className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center"
                 >
                   <X size={20} color="#111827" />
@@ -192,7 +204,7 @@ const CreateServiceModal = ({
                   >
                     {image ? (
                       <Image
-                        source={{ uri: image }}
+                        source={{ uri: mediaUrl + image }}
                         className="w-full h-full"
                         resizeMode="cover"
                       />
@@ -337,11 +349,11 @@ const CreateServiceModal = ({
                 <TouchableOpacity
                   activeOpacity={0.85}
                   disabled={loading}
-                  onPress={handleSubmit}
+                  onPress={handleUpdate}
                   className="bg-black rounded-2xl py-5 items-center"
                 >
                   <Text className="text-white font-bold text-base">
-                    {loading ? "Loading..." : "Ajouter un Service"}
+                    {loading ? "Loading..." : "Modifier le Service"}
                   </Text>
                 </TouchableOpacity>
               </ScrollView>
@@ -366,4 +378,4 @@ const CreateServiceModal = ({
   );
 };
 
-export default CreateServiceModal;
+export default EditServiceModal;
