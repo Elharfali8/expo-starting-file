@@ -164,3 +164,38 @@ export async function updateService({
 
   return data.service;
 }
+
+
+// DELETE SERVICE
+interface DeleteServiceResponse {
+  message: string;
+}
+
+export async function deleteService({
+  username,
+  serviceId,
+}: {
+  username: string;
+  serviceId: number;
+}): Promise<string> {
+  const token = await getToken();
+
+  const response = await fetch(
+    `${BASE_URL}/users/digital-profile/services/delete/${username}/${serviceId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data: DeleteServiceResponse = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to delete service");
+  }
+
+  return data.message;
+}
