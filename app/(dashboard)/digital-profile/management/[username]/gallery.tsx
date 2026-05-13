@@ -6,12 +6,20 @@ import { getAllGalleries } from "../../api/gallery";
 import Loading from "./components/Loading";
 import PaginationExample from "./components/PaginationExample";
 import ImageUploader from "./components/UploadImage";
+import { deleteImage } from "../../api/gallery";
+import DeleteImageModal from "./components/DeleteImageModal";
 
 const gallery = () => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const { username } = useLocalSearchParams();
+
+  // DELETE POPUP
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+const [deleting, setDeleting] = useState(false);
+const [deleteSuccess, setDeleteSuccess] = useState(false);
+const [selectedImage, setSelectedImage] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchGalleries = async () => {
@@ -29,6 +37,42 @@ const gallery = () => {
 
     fetchGalleries();
   }, [username]);
+
+  // HANDLE DELETE IMAGE
+  const handleDeleteImage = async () => {
+  if (!selectedImage) return;
+
+  try {
+    setDeleting(true);
+
+    if (typeof username !== "string") return;
+
+    await deleteImage({
+      username,
+      imageId: selectedImage.id,
+    });
+
+    setImages((prev: any) =>
+      prev.filter((image: any) => image.id !== selectedImage.id)
+    );
+
+    setDeleteSuccess(true);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setDeleting(false);
+  }
+  };
+  
+  const handleDeleteModalClose = () => {
+  setDeleteModalVisible(false);
+};
+
+const handleDeleteSuccessClose = () => {
+  setDeleteModalVisible(false);
+  setDeleteSuccess(false);
+  setSelectedImage(null);
+};
 
   return (
     <ScrollView
@@ -70,10 +114,24 @@ const gallery = () => {
             </View>
 
             {/* pagination */}
-            <PaginationExample images={images} />
+              <PaginationExample
+  images={images}
+  setSelectedImage={setSelectedImage}
+  setDeleteModalVisible={setDeleteModalVisible}
+/>
           </>
         )}
       </View>
+      <DeleteImageModal
+      deleteModalVisible={deleteModalVisible}
+      setDeleteModalVisible={setDeleteModalVisible}
+      selectedImage={selectedImage}
+      handleDelete={handleDeleteImage}
+      deleting={deleting}
+      deleteSuccess={deleteSuccess}
+      onClose={handleDeleteModalClose}
+      onSuccessClose={handleDeleteSuccessClose}
+    />
     </ScrollView>
   );
 };

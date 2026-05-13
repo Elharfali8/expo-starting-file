@@ -12,10 +12,18 @@ import { Trash, X } from "lucide-react-native";
 
 const ITEMS_PER_PAGE = 6;
 
-const PaginationExample = ({ images }: { images?: any }) => {
+const PaginationExample = ({
+  images,
+  setSelectedImage,
+  setDeleteModalVisible,
+}: {
+  images?: any;
+  setSelectedImage: React.Dispatch<React.SetStateAction<any>>;
+  setDeleteModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const [page, setPage] = useState(1);
 
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
   const mediaUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
@@ -25,7 +33,7 @@ const PaginationExample = ({ images }: { images?: any }) => {
     const end = start + ITEMS_PER_PAGE;
 
     return images.slice(start, end);
-  }, [page]);
+  }, [page, images]);
 
   return (
     <View className="mt-6">
@@ -42,7 +50,7 @@ const PaginationExample = ({ images }: { images?: any }) => {
             {/* IMAGE */}
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={() => setSelectedImage(mediaUrl + item.image_path)}
+              onPress={() => setPreviewImage(mediaUrl + item.image_path)}
             >
               <View className="aspect-square bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
                 <Image
@@ -56,8 +64,20 @@ const PaginationExample = ({ images }: { images?: any }) => {
             {/* DELETE BUTTON */}
             <TouchableOpacity
               activeOpacity={0.85}
-              onPress={() => console.log("delete")}
-              className="absolute top-2 right-2 bg-white border border-red-100 p-2 rounded-xl shadow-sm"
+              onPress={() => {
+                setSelectedImage(item);
+                setDeleteModalVisible(true);
+              }}
+              className="
+    absolute
+    top-2
+    right-2
+    bg-white
+    border
+    border-red-100
+    p-2
+    rounded-xl
+  "
             >
               <Trash size={16} color="#ef4444" />
             </TouchableOpacity>
@@ -108,22 +128,22 @@ const PaginationExample = ({ images }: { images?: any }) => {
 
       {/* IMAGE MODAL */}
       <Modal
-        visible={!!selectedImage}
+        visible={!!previewImage}
         transparent
         animationType="fade"
-        onRequestClose={() => setSelectedImage(null)}
+        onRequestClose={() => setPreviewImage(null)}
       >
         <View className="flex-1 items-center justify-center">
           {/* OVERLAY */}
           <TouchableOpacity
             activeOpacity={1}
-            onPress={() => setSelectedImage(null)}
+            onPress={() => setPreviewImage(null)}
             className="absolute inset-0 bg-gray-700/90"
           />
 
           {/* CLOSE BUTTON */}
           <TouchableOpacity
-            onPress={() => setSelectedImage(null)}
+            onPress={() => setPreviewImage(null)}
             className="absolute top-14 right-6 z-20 bg-white/20 p-3 rounded-full"
           >
             <X size={24} color="white" />
@@ -132,7 +152,7 @@ const PaginationExample = ({ images }: { images?: any }) => {
           {/* IMAGE */}
           <View className="w-full px-4 items-center justify-center z-10">
             <Image
-              source={{ uri: selectedImage || "" }}
+              source={{ uri: previewImage || "" }}
               className="w-full h-[500px]"
               resizeMode="contain"
             />
