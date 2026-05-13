@@ -1,64 +1,30 @@
 import React, { useMemo, useState } from "react";
 import {
-    FlatList,
-    Image,
-    Modal,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Image,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import { Trash, X } from "lucide-react-native";
 
-const MOCK_IMAGES = [
-  {
-    id: "1",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
-  },
-  {
-    id: "2",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
-  },
-  {
-    id: "3",
-    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9",
-  },
-  {
-    id: "4",
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
-  },
-  {
-    id: "5",
-    image: "https://images.unsplash.com/photo-1585386959984-a4155224a1ad",
-  },
-  {
-    id: "6",
-    image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f",
-  },
-  {
-    id: "7",
-    image: "https://images.unsplash.com/photo-1491553895911-0055eca6402d",
-  },
-  {
-    id: "8",
-    image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796",
-  },
-];
+const ITEMS_PER_PAGE = 6;
 
-const ITEMS_PER_PAGE = 4;
-
-const PaginationExample = () => {
+const PaginationExample = ({ images }: { images?: any }) => {
   const [page, setPage] = useState(1);
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const totalPages = Math.ceil(MOCK_IMAGES.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
+  const mediaUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
 
   const paginatedData = useMemo(() => {
     const start = (page - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
 
-    return MOCK_IMAGES.slice(start, end);
+    return images.slice(start, end);
   }, [page]);
 
   return (
@@ -76,11 +42,11 @@ const PaginationExample = () => {
             {/* IMAGE */}
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={() => setSelectedImage(item.image)}
+              onPress={() => setSelectedImage(mediaUrl + item.image_path)}
             >
               <View className="aspect-square bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
                 <Image
-                  source={{ uri: item.image }}
+                  source={{ uri: mediaUrl + item.image_path }}
                   className="w-full h-full"
                   resizeMode="contain"
                 />
