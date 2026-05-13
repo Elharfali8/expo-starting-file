@@ -13,11 +13,19 @@ import {
 } from "react-native";
 import { SwipeListView } from "react-native-swipe-list-view";
 import { getAllCategories } from "../../../api/store/categories";
+import CreateCategoryModal from "./components/CreateCategoryModal";
 
 const Categories = () => {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const { username } = useLocalSearchParams();
+
+  // CREATE CATEGORY
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+
+  const handleCategoryModal = () => {
+    setCreateModalVisible((prev) => !prev);
+  };
 
   const mediaUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
 
@@ -102,6 +110,7 @@ const Categories = () => {
       {/* ADD BUTTON */}
       <TouchableOpacity
         activeOpacity={0.8}
+        onPress={handleCategoryModal}
         className="bg-slate-900 rounded-2xl py-4 flex-row items-center justify-center gap-2"
       >
         <Plus color="white" size={20} />
@@ -457,6 +466,14 @@ const Categories = () => {
           </Pressable>
         </Pressable>
       </Modal>
+
+      {/* CREATE MODAL */}
+      {createModalVisible && (
+        <CreateCategoryModal
+          createModalVisible={createModalVisible}
+          setCreateModalVisible={setCreateModalVisible}
+        />
+      )}
     </View>
   );
 };
