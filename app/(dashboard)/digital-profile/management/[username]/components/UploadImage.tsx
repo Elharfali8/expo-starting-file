@@ -15,14 +15,13 @@ import {
 const MAX_FILES = 5;
 const MAX_SIZE_MB = 10;
 
-const ImageUploader = ({ onUpload }: {onUpload:any}) => {
+const ImageUploader = ({ onUpload }: { onUpload: any }) => {
   const [images, setImages] = useState<any>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const pickImages = async () => {
-    const { status } =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert("Permission refusée", "Accès à la galerie requis.");
       return;
@@ -31,43 +30,48 @@ const ImageUploader = ({ onUpload }: {onUpload:any}) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsMultipleSelection: true,
-      quality: 1,
+      quality: 0.7, // 👈 compress to 70% instead of 1 (100%)
     });
 
     if (!result.canceled) {
       const selected = result.assets.filter(
-        (a) => (a.fileSize || 0) <= MAX_SIZE_MB * 1024 * 1024
+        (a) => (a.fileSize || 0) <= MAX_SIZE_MB * 1024 * 1024,
       );
-      setImages((prev:any) => [...prev, ...selected].slice(0, MAX_FILES));
+      setImages((prev: any) => [...prev, ...selected].slice(0, MAX_FILES));
       setSuccess(false);
     }
   };
 
   const removeImage = (index: any) => {
-    setImages((prev:any) => prev.filter((_:any, i:any) => i !== index));
+    setImages((prev: any) => prev.filter((_: any, i: any) => i !== index));
     setSuccess(false);
   };
 
   const handleUpload = async () => {
     if (images.length === 0) return;
-    setLoading(true);
 
-    // ── swap this block with your real API call ──
-    await new Promise((r) => setTimeout(r, 1200));
-    // ─────────────────────────────────────────────
+    try {
+      setLoading(true);
 
-    setLoading(false);
-    setSuccess(true);
-    setImages([]);
-    if (onUpload) onUpload();
-    setTimeout(() => setSuccess(false), 4000);
+      await onUpload(images);
+
+      setSuccess(true);
+      setImages([]);
+
+      setTimeout(() => {
+        setSuccess(false);
+      }, 4000);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const canUpload = images.length > 0 && !loading;
 
   return (
     <View className="border border-[#e5e7eb] rounded-2xl shadow-md bg-white">
-
       {/* Preview strip */}
       {images.length > 0 && (
         <ScrollView
@@ -76,7 +80,7 @@ const ImageUploader = ({ onUpload }: {onUpload:any}) => {
           style={styles.previewStrip}
           contentContainerStyle={styles.previewContent}
         >
-          {images.map((img:any, i:any) => (
+          {images.map((img: any, i: any) => (
             <View key={i} style={styles.previewWrap}>
               <RNImage
                 source={{ uri: img?.uri }}
@@ -110,7 +114,8 @@ const ImageUploader = ({ onUpload }: {onUpload:any}) => {
             <Text style={styles.dropLink}>une image</Text>
           </Text>
           <Text style={styles.dropSub}>
-            Max {MAX_SIZE_MB} Mo · Format recommandé 1:1 · {MAX_FILES} fichiers max
+            Max {MAX_SIZE_MB} Mo · Format recommandé 1:1 · {MAX_FILES} fichiers
+            max
           </Text>
         </View>
       </TouchableOpacity>
@@ -155,7 +160,6 @@ export default ImageUploader;
 import { Image as RNImage } from "react-native";
 
 const styles = StyleSheet.create({
-
   previewStrip: {
     borderBottomWidth: 0.5,
     borderBottomColor: "#e5e7eb",

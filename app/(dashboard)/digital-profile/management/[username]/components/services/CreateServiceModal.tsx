@@ -2,22 +2,22 @@ import { createService } from "@/app/(dashboard)/digital-profile/api/services";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams } from "expo-router";
 import {
-    CheckCircle,
-    ChevronDown,
-    ChevronUp,
-    ImagePlus,
-    X,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  ImagePlus,
+  X,
 } from "lucide-react-native";
 import React, { useRef, useState } from "react";
 import {
-    Image,
-    Modal,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 type Props = {
@@ -48,7 +48,7 @@ const CreateServiceModal = ({
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) return;
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,

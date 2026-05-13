@@ -28,6 +28,18 @@ const PaginationExample = ({
   const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
   const mediaUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
 
+  const getImageUri = (item: any) => {
+    const path =
+      item.image_path ||
+      item.path ||
+      item.url ||
+      item.imageUrl ||
+      item.image_url;
+    if (!path) return null;
+    if (path.startsWith("http")) return path;
+    return `${mediaUrl}${path}`;
+  };
+
   const paginatedData = useMemo(() => {
     const start = (page - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
@@ -50,11 +62,11 @@ const PaginationExample = ({
             {/* IMAGE */}
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={() => setPreviewImage(mediaUrl + item.image_path)}
+              onPress={() => setPreviewImage(getImageUri(item))}
             >
               <View className="aspect-square bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
                 <Image
-                  source={{ uri: mediaUrl + item.image_path }}
+                  source={{ uri: getImageUri(item) ?? "" }}
                   className="w-full h-full"
                   resizeMode="contain"
                 />
