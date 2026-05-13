@@ -8,6 +8,7 @@ import { UserRound } from "lucide-react-native";
 
 import WorkspaceButton from "./WorkspaceButton";
 import NotificationDropdown from "../NotificationDropdown";
+import ProfileDropDown from "../ProfileDropDown";
 
 type Props = {
   isOpen: boolean;
@@ -48,23 +49,7 @@ export default function TopNavBar({
           <NotificationDropdown />
 
           {/* PROFILE */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            className="
-              w-11
-              h-11
-              rounded-2xl
-              bg-slate-100
-              items-center
-              justify-center
-            "
-          >
-            <UserRound
-              size={20}
-              color="#64748b"
-              strokeWidth={2.2}
-            />
-          </TouchableOpacity>
+          <ProfileDropDown />
         </View>
       </View>
     </View>

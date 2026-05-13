@@ -73,3 +73,69 @@ export async function createCategory({
 
   return data;
 }
+
+
+// UPDATE CATEGORY
+type UpdateCategoryPayload = {
+  image: string;
+  name: string;
+  visibility: boolean;
+  description: string;
+};
+
+// UPDATE CATEGORY
+export async function updateCategory({
+  categoryId,
+  username,
+  categoryData,
+}: {
+  categoryId: number;
+  username: string;
+  categoryData: UpdateCategoryPayload;
+}) {
+  const token = await getToken();
+
+  const formData = new FormData();
+
+  // image can be local picked image OR existing image path
+  if (categoryData.image.startsWith("file")) {
+    formData.append("image", {
+      uri: categoryData.image,
+      name: "category.jpg",
+      type: "image/jpeg",
+    } as any);
+  }
+
+  formData.append("name", categoryData.name);
+
+  formData.append(
+    "visibility",
+    String(categoryData.visibility)
+  );
+
+  formData.append(
+    "description",
+    categoryData.description
+  );
+
+  const response = await fetch(
+    `${BASE_URL}/users/digital-profile/store/update-category/${categoryId}/${username}`,
+    {
+        method: "PUT",
+        headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message || "Failed to update category"
+    );
+  }
+
+  return data;
+}

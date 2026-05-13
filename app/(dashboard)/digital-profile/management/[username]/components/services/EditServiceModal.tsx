@@ -1,25 +1,23 @@
-import {
-    Service
-} from "@/app/(dashboard)/digital-profile/api/services";
+import { Service } from "@/app/(dashboard)/digital-profile/api/services";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams } from "expo-router";
 import {
-    CheckCircle,
-    ChevronDown,
-    ChevronUp,
-    ImagePlus,
-    X,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  ImagePlus,
+  X,
 } from "lucide-react-native";
 import React, { useRef, useState } from "react";
 import {
-    Image,
-    Modal,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import { updateService } from "@/app/(dashboard)/digital-profile/api/services";
@@ -41,11 +39,10 @@ const EditServiceModal = ({
 
   const [description, setDescription] = useState(service.description);
 
-    const [price, setPrice] = useState(String(service.price || ""));
-    const [pricingType, setPricingType] = useState("Fixed Price");
+  const [price, setPrice] = useState(String(service.price || ""));
+  const [pricingType, setPricingType] = useState("Fixed Price");
 
-const [showPricingOptions, setShowPricingOptions] =
-  useState(false);
+  const [showPricingOptions, setShowPricingOptions] = useState(false);
 
   const [image, setImage] = useState<string | null>(service.image_path);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -365,9 +362,13 @@ const [showPricingOptions, setShowPricingOptions] =
                 className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-black/80 items-center justify-center"
               >
                 {isAtBottom ? (
-                  <ChevronUp size={20} color="white" />
+                  <View className="bg-black p-2 rounded-full border border-white">
+                    <ChevronUp size={20} color="white" />
+                  </View>
                 ) : (
-                  <ChevronDown size={20} color="white" />
+                  <View className="bg-black p-2 rounded-full border border-white">
+                    <ChevronDown size={20} color="white" />
+                  </View>
                 )}
               </TouchableOpacity>
             </View>

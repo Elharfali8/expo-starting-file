@@ -353,9 +353,13 @@ const CreateServiceModal = ({
                 className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-black/80 items-center justify-center"
               >
                 {isAtBottom ? (
-                  <ChevronUp size={20} color="white" />
+                  <View className="bg-black p-2 rounded-full border border-white">
+                    <ChevronUp size={20} color="white" />
+                  </View>
                 ) : (
-                  <ChevronDown size={20} color="white" />
+                  <View className="bg-black p-2 rounded-full border border-white">
+                    <ChevronDown size={20} color="white" />
+                  </View>
                 )}
               </TouchableOpacity>
             </View>

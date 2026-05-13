@@ -74,7 +74,7 @@ export default function AppDropdown({
           className="flex-1 bg-black/10"
           onPress={() => setOpen(false)}
         >
-          <View className="absolute top-28 right-4">
+          <View className="absolute top-22 right-4">
             {/* DROPDOWN */}
             <Pressable
               className={`

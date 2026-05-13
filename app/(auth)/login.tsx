@@ -1,8 +1,11 @@
 import { loginUser } from "@/services/api";
 import { saveToken } from "@/utils/storage";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
+import { Lock, Mail } from "lucide-react-native";
 import { useRef, useState } from "react";
+
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -26,9 +29,12 @@ const Login = () => {
   const handleLogin = async () => {
     setLoading(true);
     setError("");
+
     try {
       const data = await loginUser(email, password);
-          await saveToken(data.token);
+
+      await saveToken(data.token);
+
       router.replace("/(dashboard)");
     } catch (e: any) {
       setError(e.message);
@@ -39,117 +45,285 @@ const Login = () => {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-white"
-      behavior={Platform.OS === "ios" ? "padding" : "height"} // ✅ fix Android too
+      className="flex-1 bg-[#F8FAFC]"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
-      <ScrollView
-        ref={scrollViewRef}
-        className="flex-1"
-        contentContainerStyle={{
-          flexGrow: 1,
-          justifyContent: "flex-start",
-          paddingHorizontal: 24,
-          paddingBottom: 40, // ✅ ensures space when keyboard is open
-        }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* LOGO */}
-        <View className="items-center mb-12">
-          <Image
-            source={require("@/assets/images/yascript.png")}
-            style={{ width: 140, height: 140 }}
-            contentFit="contain"
-          />
+      <View className="flex-1 bg-[#F8FAFC]">
+        {/* BACKGROUND EFFECTS */}
+
+        <View
+          className="
+            absolute
+            top-[-120px]
+            right-[-80px]
+            w-[320px]
+            h-[320px]
+            rounded-full
+            bg-blue-100/40
+          "
+        />
+
+        <View
+          className="
+            absolute
+            top-[120px]
+            right-[-30px]
+            w-[260px]
+            h-[140px]
+            rounded-[80px]
+            border
+            border-blue-100
+            opacity-40
+          "
+        />
+
+        <View
+          className="
+            absolute
+            top-[140px]
+            right-[-10px]
+            w-[220px]
+            h-[120px]
+            rounded-[80px]
+            border
+            border-blue-100
+            opacity-30
+          "
+        />
+
+        {/* DOTS */}
+
+        <View className="absolute top-[100px] right-8">
+          {[1, 2, 3].map((row) => (
+            <View key={row} className="flex-row gap-2 mb-2">
+              {[1, 2, 3].map((dot) => (
+                <View
+                  key={dot}
+                  className="w-1.5 h-1.5 rounded-full bg-blue-200"
+                />
+              ))}
+            </View>
+          ))}
         </View>
 
-        {/* HEADER */}
-        <View className="mb-10">
-          <Text className="text-[34px] font-bold text-slate-900 mb-3 tracking-tight">
-            Welcome back
-          </Text>
-          <Text className="text-base leading-6 text-slate-500">
-            Sign in to continue managing your dashboard.
-          </Text>
-        </View>
-
-        {/* ERROR */}
-        {error ? (
-          <View className="bg-red-50 border border-red-200 rounded-2xl px-4 py-4 mb-6">
-            <Text className="text-red-500 text-sm font-medium">{error}</Text>
-          </View>
-        ) : null}
-
-        {/* FORM */}
-        <View className="gap-5 mb-8">
-          {/* EMAIL */}
-          <View>
-            <Text className="text-sm font-medium text-slate-600 mb-2 ml-1">
-              Email
-            </Text>
-            <TextInput
-              className="bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-base"
-              style={{ height: 58, paddingHorizontal: 20 }}
-              placeholder="you@example.com"
-              placeholderTextColor="#94A3B8"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              returnKeyType="next" // ✅ shows "Next" on keyboard
-              onSubmitEditing={() => passwordRef.current?.focus()} // ✅ jumps to password
-              onFocus={
-                () => scrollViewRef.current?.scrollTo({ y: 0, animated: true }) // ✅ scroll up for email
-              }
-            />
-          </View>
-
-          {/* PASSWORD */}
-          <View>
-            <Text className="text-sm font-medium text-slate-600 mb-2 ml-1">
-              Password
-            </Text>
-            <TextInput
-              ref={passwordRef}
-              className="bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-base"
-              style={{ height: 58, paddingHorizontal: 20 }}
-              placeholder="••••••••"
-              placeholderTextColor="#94A3B8"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              returnKeyType="done" // ✅ shows "Done" on keyboard
-              onSubmitEditing={handleLogin} // ✅ submits on Done
-              onFocus={
-                () =>
-                  scrollViewRef.current?.scrollTo({ y: 200, animated: true }) // ✅ scroll down for password
-              }
-            />
-          </View>
-        </View>
-
-        {/* BUTTON */}
-        <TouchableOpacity
-          className={`h-[58px] rounded-2xl items-center justify-center ${
-            loading ? "bg-indigo-400" : "bg-indigo-600"
-          }`}
-          activeOpacity={0.9}
-          onPress={handleLogin}
-          disabled={loading}
+        <ScrollView
+          ref={scrollViewRef}
+          className="flex-1"
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingHorizontal: 24,
+            paddingTop: 90,
+            paddingBottom: 40,
+          }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text className="text-white text-base font-semibold">Sign in</Text>
-          )}
-        </TouchableOpacity>
+          {/* LOGO */}
 
-        {/* FOOTER */}
-        {/* <View className="mt-8 items-center">
-          <Text className="text-slate-400 text-sm">Secure dashboard access</Text>
-        </View> */}
-      </ScrollView>
+          <View className="items-center mb-14">
+            <View
+              className="
+                w-[140px]
+                h-[140px]
+                rounded-[38px]
+                bg-white
+                items-center
+                justify-center
+                border
+                border-slate-100
+              "
+              style={{
+                shadowColor: "#000",
+                shadowOffset: {
+                  width: 0,
+                  height: 10,
+                },
+                shadowOpacity: 0.06,
+                shadowRadius: 20,
+                elevation: 8,
+              }}
+            >
+              <Image
+                source={require("@/assets/images/yascript.png")}
+                style={{
+                  width: 110,
+                  height: 110,
+                }}
+                contentFit="contain"
+              />
+            </View>
+          </View>
+
+          {/* HEADER */}
+
+          <View className="mb-10">
+            <Text
+              className="
+                text-[38px]
+                font-black
+                text-slate-900
+                tracking-tight
+                mb-3
+              "
+            >
+              Welcome back
+            </Text>
+
+            <Text
+              className="
+                text-[16px]
+                leading-7
+                text-slate-500
+              "
+            >
+              Sign in to continue managing your dashboard.
+            </Text>
+          </View>
+
+          {/* ERROR */}
+
+          {error ? (
+            <View
+              className="
+                bg-red-50
+                border
+                border-red-200
+                rounded-3xl
+                px-5
+                py-4
+                mb-6
+              "
+            >
+              <Text className="text-red-600 text-sm font-medium">{error}</Text>
+            </View>
+          ) : null}
+
+          {/* FORM */}
+
+          <View className="gap-5 mb-8">
+            {/* EMAIL */}
+
+            <View>
+              <Text className="text-sm font-semibold text-slate-700 mb-3 ml-1">
+                Email address
+              </Text>
+
+              <View
+                className="
+                  h-[62px]
+                  bg-white
+                  border
+                  border-slate-200
+                  rounded-[24px]
+                  flex-row
+                  items-center
+                  px-5
+                  gap-4
+                "
+              >
+                <Mail size={20} color="#64748B" />
+
+                <TextInput
+                  className="flex-1 text-slate-900 text-[15px]"
+                  placeholder="you@example.com"
+                  placeholderTextColor="#94A3B8"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  returnKeyType="next"
+                  onSubmitEditing={() => passwordRef.current?.focus()}
+                  onFocus={() =>
+                    scrollViewRef.current?.scrollTo({
+                      y: 0,
+                      animated: true,
+                    })
+                  }
+                />
+              </View>
+            </View>
+
+            {/* PASSWORD */}
+
+            <View>
+              <Text className="text-sm font-semibold text-slate-700 mb-3 ml-1">
+                Password
+              </Text>
+
+              <View
+                className="
+                  h-[62px]
+                  bg-white
+                  border
+                  border-slate-200
+                  rounded-[24px]
+                  flex-row
+                  items-center
+                  px-5
+                  gap-4
+                "
+              >
+                <Lock size={20} color="#64748B" />
+
+                <TextInput
+                  ref={passwordRef}
+                  className="flex-1 text-slate-900 text-[15px]"
+                  placeholder="••••••••"
+                  placeholderTextColor="#94A3B8"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                  returnKeyType="done"
+                  onSubmitEditing={handleLogin}
+                  onFocus={() =>
+                    scrollViewRef.current?.scrollTo({
+                      y: 200,
+                      animated: true,
+                    })
+                  }
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* BUTTON */}
+
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={handleLogin}
+            disabled={loading}
+            className="rounded-2xl overflow-hidden shadow-xl"
+          >
+            <LinearGradient
+              colors={["#2563EB", "#1D4ED8"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              className="
+                h-[62px]
+                items-center
+                justify-center
+              "
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text className="text-white text-[16px] font-bold">
+                  Sign In
+                </Text>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+
+          {/* FOOTER */}
+
+          <View className="items-center mt-10">
+            <Text className="text-slate-400 text-[13px]">
+              Secure access powered by Yascript
+            </Text>
+          </View>
+        </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 };
