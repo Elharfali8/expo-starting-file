@@ -3,7 +3,7 @@ import { saveToken } from "@/utils/storage";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { Lock, Mail } from "lucide-react-native";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react-native";
 import { useRef, useState } from "react";
 
 import {
@@ -22,6 +22,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const scrollViewRef = useRef<ScrollView>(null);
   const passwordRef = useRef<TextInput>(null);
@@ -246,6 +247,8 @@ const Login = () => {
 
             {/* PASSWORD */}
 
+            {/* PASSWORD */}
+
             <View>
               <Text className="text-sm font-semibold text-slate-700 mb-3 ml-1">
                 Password
@@ -253,16 +256,16 @@ const Login = () => {
 
               <View
                 className="
-                  h-[62px]
-                  bg-white
-                  border
-                  border-slate-200
-                  rounded-[24px]
-                  flex-row
-                  items-center
-                  px-5
-                  gap-4
-                "
+      h-[62px]
+      bg-white
+      border
+      border-slate-200
+      rounded-[24px]
+      flex-row
+      items-center
+      px-5
+      gap-4
+    "
               >
                 <Lock size={20} color="#64748B" />
 
@@ -273,7 +276,7 @@ const Login = () => {
                   placeholderTextColor="#94A3B8"
                   value={password}
                   onChangeText={setPassword}
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   returnKeyType="done"
                   onSubmitEditing={handleLogin}
                   onFocus={() =>
@@ -283,6 +286,17 @@ const Login = () => {
                     })
                   }
                 />
+
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff size={20} color="#64748B" />
+                  ) : (
+                    <Eye size={20} color="#64748B" />
+                  )}
+                </TouchableOpacity>
               </View>
             </View>
           </View>

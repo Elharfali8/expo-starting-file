@@ -74,7 +74,6 @@ export async function createCategory({
   return data;
 }
 
-
 // UPDATE CATEGORY
 type UpdateCategoryPayload = {
   image: string;
@@ -108,33 +107,55 @@ export async function updateCategory({
 
   formData.append("name", categoryData.name);
 
-  formData.append(
-    "visibility",
-    String(categoryData.visibility)
-  );
+  formData.append("visibility", String(categoryData.visibility));
 
-  formData.append(
-    "description",
-    categoryData.description
-  );
+  formData.append("description", categoryData.description);
 
   const response = await fetch(
     `${BASE_URL}/users/digital-profile/store/update-category/${categoryId}/${username}`,
     {
-        method: "PUT",
-        headers: {
+      method: "PUT",
+      headers: {
         Authorization: `Bearer ${token}`,
       },
       body: formData,
-    }
+    },
   );
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(
-      data?.message || "Failed to update category"
-    );
+    throw new Error(data?.message || "Failed to update category");
+  }
+
+  return data;
+}
+
+// DELETE CATEGORY
+
+type CategoryProps = {
+  username: string;
+  categoryId: number;
+};
+
+export async function deleteCategory({ username, categoryId }: CategoryProps) {
+  const token = await getToken();
+
+  const response = await fetch(
+    `${BASE_URL}/users/digital-profile/store/categories/${categoryId}/${username}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to delete image");
   }
 
   return data;

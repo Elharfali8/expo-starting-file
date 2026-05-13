@@ -11,7 +11,7 @@ export async function getAllGalleries({ username }: { username: string }) {
     {
       method: "GET",
       headers: {
-        "Content-type": "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     },

@@ -12,7 +12,10 @@ import {
   View,
 } from "react-native";
 import { SwipeListView } from "react-native-swipe-list-view";
-import { getAllCategories } from "../../../api/store/categories";
+import {
+  deleteCategory,
+  getAllCategories,
+} from "../../../api/store/categories";
 import Loading from "../components/Loading";
 import CreateCategoryModal from "./components/CreateCategoryModal";
 import EditCategoryModal from "./components/EditCategoryModal";
@@ -21,6 +24,9 @@ const Categories = () => {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const { username } = useLocalSearchParams();
+  const parsedUsername = React.useMemo(() => {
+    return Array.isArray(username) ? username[0] : username;
+  }, [username]);
 
   // CREATE CATEGORY
   const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -81,12 +87,28 @@ const Categories = () => {
   };
 
   // Actually deletes (called from confirm modal)
-  const handleDelete = () => {
-    if (!selectedCategory) return;
-    setCategories((prev) => prev.filter((c) => c.id !== selectedCategory.id));
-    setDeleteModalVisible(false);
-  };
+  const [isDeleting, setIsDeleting] = useState(false);
 
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      if (!selectedCategory || !parsedUsername) return;
+
+      await deleteCategory({
+        username: parsedUsername,
+        categoryId: selectedCategory.id,
+      });
+
+      setCategories((prev) => prev.filter((c) => c.id !== selectedCategory.id));
+      setDeleteModalVisible(false);
+      setSelectedCategory(null);
+    } catch (error: any) {
+      console.log(error);
+      alert(error.message || "Failed to delete category");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
   //
   const ITEMS_PER_PAGE = 6;
 
@@ -293,7 +315,7 @@ const Categories = () => {
 
               {/* Title */}
               <Text className="text-lg font-bold text-gray-900 mb-1">
-                {selectedCategory?.category}
+                {selectedCategory?.name}
               </Text>
               <Text className="text-sm text-gray-400 mb-6">
                 Choisissez une action
@@ -375,7 +397,7 @@ const Categories = () => {
               <Text className="text-sm text-gray-400 text-center mb-6">
                 Voulez-vous vraiment supprimer{" "}
                 <Text className="font-semibold text-gray-600">
-                  "{selectedCategory?.category}"
+                  "{selectedCategory?.name}"
                 </Text>{" "}
                 ? Cette action est irréversible.
               </Text>
@@ -394,8 +416,11 @@ const Categories = () => {
                   activeOpacity={0.8}
                   className="flex-1 bg-red-500 rounded-2xl py-4 items-center"
                   onPress={handleDelete}
+                  disabled={isDeleting}
                 >
-                  <Text className="text-white font-semibold">Supprimer</Text>
+                  <Text className="text-white font-semibold">
+                    {isDeleting ? "Suppression..." : "Supprimer"}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
