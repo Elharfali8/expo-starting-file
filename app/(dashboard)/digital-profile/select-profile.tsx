@@ -29,7 +29,7 @@ export default function SelectProfile() {
 
   if (loading) {
       return (
-        <View className="flex-1 items-center justify-center bg-slate-50 px-6">
+        <View className="flex-1 items-center justify-center bg-slate-50 px-6 ">
           <View className="bg-white border border-slate-200 rounded-3xl px-8 py-10 items-center w-full">
             <View className="w-16 h-16 rounded-full bg-slate-100 items-center justify-center mb-4">
               <View className="w-8 h-8 rounded-full bg-slate-900 animate-pulse" />
@@ -48,7 +48,7 @@ export default function SelectProfile() {
     }
 
   return (
-    <ScrollView className="flex-1 bg-slate-100 px-4 py-8">
+    <ScrollView className="flex-1 bg-slate-100 px-4 py-8 ">
       {/* Header */}
       <PageTitle
         title="Gérer les profils"
@@ -56,7 +56,7 @@ export default function SelectProfile() {
       />
 
       {/* Content */}
-      <View className="mt-6 flex-row flex-wrap justify-between">
+      <View className="mt-6 flex-row flex-wrap justify-between mb-24">
         {/* Add card */}
         <TouchableOpacity
           activeOpacity={0.8}
