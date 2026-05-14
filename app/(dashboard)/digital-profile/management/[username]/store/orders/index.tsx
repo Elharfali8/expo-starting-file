@@ -1,22 +1,22 @@
-import { useLocalSearchParams } from "expo-router";
+import { getAllOrders } from "@/app/(dashboard)/digital-profile/api/store/orders";
+import { router, useLocalSearchParams } from "expo-router";
 import { Filter, Search, X } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { getAllOrders } from "../../../api/store/orders";
-import Loading from "../components/Loading";
+import Loading from "../../components/Loading";
 import {
-  fulfillmentStatusConfig,
-  orderStatusConfig,
-  paymentStatusConfig,
-} from "./constants/orders";
+    fulfillmentStatusConfig,
+    orderStatusConfig,
+    paymentStatusConfig,
+} from "../constants/orders";
 
 const orders = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -302,6 +302,11 @@ const orders = () => {
                 <TouchableOpacity
                   key={item.id}
                   activeOpacity={0.85}
+                  onPress={() =>
+                    router.push(
+                      `/digital-profile/management/${username}/store/orders/${item.id}`,
+                    )
+                  }
                   className={`bg-white border border-gray-100 rounded-3xl p-4 shadow-sm border-l-4 ${orderConfig.border}`}
                 >
                   {/* Header */}

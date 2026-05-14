@@ -39,42 +39,40 @@ const StoreLayout = () => {
       showsVerticalScrollIndicator={false}
     >
       <View className="px-4 pt-4 pb-8">
-        <View className="bg-white shadow-md rounded-2xl p-4 mb-6">
-          <Text className="text-lg font-semibold text-gray-800">
-            Navigation
-          </Text>
+        {!pathname.includes("/store/orders/") && (
+          <View className="bg-white shadow-md rounded-2xl p-4 mb-6">
+            <Text className="text-lg font-semibold text-gray-800">
+              Navigation
+            </Text>
 
-          <View className="items-center flex-row flex-wrap gap-4 mt-4">
-            {storeLinks.map((item: any) => {
-              const isActive = pathname === item.path;
+            <View className="items-center flex-row flex-wrap gap-4 mt-4">
+              {storeLinks.map((item: any) => {
+                const isActive = pathname === item.path;
 
-              return (
-                <TouchableOpacity
-                  key={item.id}
-                  activeOpacity={0.85}
-                  onPress={() => router.push(item.path)}
-                  className={`
-                    px-5 py-2 rounded-2xl border shadow-sm
-                    ${
-                      isActive
-                        ? "bg-black border-black"
-                        : "bg-white border-gray-200"
-                    }
-                  `}
-                >
-                  <Text
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    activeOpacity={0.85}
+                    onPress={() => router.push(item.path)}
                     className={`
-                      capitalize font-medium
-                      ${isActive ? "text-white" : "text-gray-700"}
-                    `}
+              px-5 py-2 rounded-2xl border shadow-sm
+              ${isActive ? "bg-black border-black" : "bg-white border-gray-200"}
+            `}
                   >
-                    {item.title}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+                    <Text
+                      className={`
+                capitalize font-medium
+                ${isActive ? "text-white" : "text-gray-700"}
+              `}
+                    >
+                      {item.title}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
-        </View>
+        )}
 
         <Slot />
       </View>

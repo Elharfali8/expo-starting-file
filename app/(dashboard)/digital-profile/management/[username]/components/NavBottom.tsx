@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { router, useLocalSearchParams, usePathname } from "expo-router";
 import {
   Blocks,
   CircleUser,
@@ -10,7 +9,8 @@ import {
   Settings,
   Store,
 } from "lucide-react-native";
-import { router, useLocalSearchParams, usePathname } from "expo-router";
+import React, { useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
 const NavBottom = () => {
   const pathname = usePathname();
@@ -30,7 +30,6 @@ const NavBottom = () => {
       title: "liens",
       icon: Link2,
       path: `/digital-profile/management/${username}/links`,
-
     },
     {
       id: 3,
@@ -75,7 +74,7 @@ const NavBottom = () => {
     <View
       className="
         absolute
-        bottom-6
+        bottom-2
         right-3
         left-3
         bg-white
@@ -94,27 +93,21 @@ const NavBottom = () => {
 
           const hasChildren = !!item.child?.length;
 
-          const isActive = item.path
-            ? pathname.startsWith(item.path)
-            : false;
+          const isActive = item.path ? pathname.startsWith(item.path) : false;
 
           const isMenuOpen = openMenuId === item.id;
 
           return (
-            <View
-              key={item.id}
-              className="relative flex-1 items-center"
-            >
+            <View key={item.id} className="relative flex-1 items-center">
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => {
                   if (hasChildren) {
                     setOpenMenuId((prev) =>
-                      prev === item.id ? null : item.id
+                      prev === item.id ? null : item.id,
                     );
                     return;
                   }
-
 
                   if (item.path) {
                     router.push(item.path as any);
@@ -133,20 +126,12 @@ const NavBottom = () => {
                     items-center
                     justify-center
                     rounded-2xl
-                    ${
-                      isActive || isMenuOpen
-                        ? "bg-blue-500"
-                        : "bg-slate-100"
-                    }
+                    ${isActive || isMenuOpen ? "bg-blue-500" : "bg-slate-100"}
                   `}
                 >
                   <Icon
                     size={20}
-                    color={
-                      isActive || isMenuOpen
-                        ? "#ffffff"
-                        : "#0f172a"
-                    }
+                    color={isActive || isMenuOpen ? "#ffffff" : "#0f172a"}
                     strokeWidth={2.2}
                   />
                 </View>

@@ -30,3 +30,33 @@ export async function getAllOrders({ username, page = 1 }: OrdersType) {
 
   return data;
 }
+
+// FETCH SINGLE ORDER
+
+type SingleOrderProps = {
+    username: string
+    orderId: number
+}
+
+export async function getSingleOrder({ username, orderId }: SingleOrderProps) {
+    const token = await getToken()
+
+    const response = await fetch(
+        `${BASE_URL}/users/digital-profile/store/orders/fetch-one/${orderId}/${username}`,
+        {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            }
+        }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch single order")
+    }
+
+    return data.order
+}
