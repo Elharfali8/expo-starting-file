@@ -1,5 +1,6 @@
+import { useLocalSearchParams } from "expo-router";
 import { Filter, Search, X } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ScrollView,
@@ -9,114 +10,157 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { getAllOrders } from "../../../api/store/orders";
+import Loading from "../components/Loading";
+import {
+  fulfillmentStatusConfig,
+  orderStatusConfig,
+  paymentStatusConfig,
+} from "./constants/orders";
 
 const orders = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [pickedCategory, setPickedCategory] = useState<string>("toutes");
 
+  const [loading, setLoading] = useState(false);
+  const { username } = useLocalSearchParams();
+
+  const [orders, setOrders] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setLoading(true);
+
+      try {
+        if (typeof username !== "string") return;
+
+        const res = await getAllOrders({
+          username,
+          page: currentPage,
+        });
+
+        setOrders(res.orders);
+        setTotalPages(res.totalPages);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [username, currentPage]);
+
   const handleOpenModal = (item: any) => {
     setModalVisible(true);
   };
 
-  const handlePickedCategory = (category: string) => {
-    setPickedCategory(category);
-  };
-
-  const orders = [
-    {
-      id: 1,
-      orderNumber: "#ORD-1024",
-      customer: "Ahmed Benali",
-      deliveryMethod: "Livraison à domicile",
-      total: 1299,
-      date: "12 Mai 2026",
-      status: "En attente",
-    },
-    {
-      id: 2,
-      orderNumber: "#ORD-1025",
-      customer: "Sara Amrani",
-      deliveryMethod: "Retrait magasin",
-      total: 895,
-      date: "11 Mai 2026",
-      status: "Confirmée",
-    },
-    {
-      id: 3,
-      orderNumber: "#ORD-1026",
-      customer: "Youssef Tazi",
-      deliveryMethod: "Livraison express",
-      total: 749,
-      date: "10 Mai 2026",
-      status: "Livrée",
-    },
-    {
-      id: 4,
-      orderNumber: "#ORD-1027",
-      customer: "Nadia Karim",
-      deliveryMethod: "Livraison à domicile",
-      total: 1999,
-      date: "09 Mai 2026",
-      status: "En attente",
-    },
-    {
-      id: 5,
-      orderNumber: "#ORD-1028",
-      customer: "Mehdi Alaoui",
-      deliveryMethod: "Retrait magasin",
-      total: 149,
-      date: "08 Mai 2026",
-      status: "Annulée",
-    },
-    {
-      id: 6,
-      orderNumber: "#ORD-1029",
-      customer: "Salma Idrissi",
-      deliveryMethod: "Livraison express",
-      total: 599,
-      date: "07 Mai 2026",
-      status: "Confirmée",
-    },
-    {
-      id: 7,
-      orderNumber: "#ORD-1030",
-      customer: "Karim Chraibi",
-      deliveryMethod: "Livraison à domicile",
-      total: 399,
-      date: "06 Mai 2026",
-      status: "Livrée",
-    },
-    {
-      id: 8,
-      orderNumber: "#ORD-1031",
-      customer: "Imane El Fassi",
-      deliveryMethod: "Retrait magasin",
-      total: 499,
-      date: "05 Mai 2026",
-      status: "En attente",
-    },
-  ];
+  // const orders = [
+  //   {
+  //     id: 1,
+  //     orderNumber: "#ORD-1024",
+  //     customer: "Ahmed Benali",
+  //     deliveryMethod: "Livraison à domicile",
+  //     total: 1299,
+  //     date: "12 Mai 2026",
+  //     status: "En attente",
+  //   },
+  //   {
+  //     id: 2,
+  //     orderNumber: "#ORD-1025",
+  //     customer: "Sara Amrani",
+  //     deliveryMethod: "Retrait magasin",
+  //     total: 895,
+  //     date: "11 Mai 2026",
+  //     status: "Confirmée",
+  //   },
+  //   {
+  //     id: 3,
+  //     orderNumber: "#ORD-1026",
+  //     customer: "Youssef Tazi",
+  //     deliveryMethod: "Livraison express",
+  //     total: 749,
+  //     date: "10 Mai 2026",
+  //     status: "Livrée",
+  //   },
+  //   {
+  //     id: 4,
+  //     orderNumber: "#ORD-1027",
+  //     customer: "Nadia Karim",
+  //     deliveryMethod: "Livraison à domicile",
+  //     total: 1999,
+  //     date: "09 Mai 2026",
+  //     status: "En attente",
+  //   },
+  //   {
+  //     id: 5,
+  //     orderNumber: "#ORD-1028",
+  //     customer: "Mehdi Alaoui",
+  //     deliveryMethod: "Retrait magasin",
+  //     total: 149,
+  //     date: "08 Mai 2026",
+  //     status: "Annulée",
+  //   },
+  //   {
+  //     id: 6,
+  //     orderNumber: "#ORD-1029",
+  //     customer: "Salma Idrissi",
+  //     deliveryMethod: "Livraison express",
+  //     total: 599,
+  //     date: "07 Mai 2026",
+  //     status: "Confirmée",
+  //   },
+  //   {
+  //     id: 7,
+  //     orderNumber: "#ORD-1030",
+  //     customer: "Karim Chraibi",
+  //     deliveryMethod: "Livraison à domicile",
+  //     total: 399,
+  //     date: "06 Mai 2026",
+  //     status: "Livrée",
+  //   },
+  //   {
+  //     id: 8,
+  //     orderNumber: "#ORD-1031",
+  //     customer: "Imane El Fassi",
+  //     deliveryMethod: "Retrait magasin",
+  //     total: 499,
+  //     date: "05 Mai 2026",
+  //     status: "En attente",
+  //   },
+  // ];
 
   const categories = [
     {
       id: 1,
-      category: "Toutes",
+      category: "toutes",
+      label: "Toutes",
     },
+
     {
       id: 2,
-      category: "En attente",
+      category: "pending",
+      label: "En attente",
     },
+
     {
       id: 3,
-      category: "Confirmée",
+      category: "confirmed",
+      label: "Confirmée",
     },
+
     {
       id: 4,
-      category: "Livrée",
+      category: "completed",
+      label: "Terminée",
     },
+
     {
       id: 5,
-      category: "Annulée",
+      category: "cancelled",
+      label: "Annulée",
     },
   ];
 
@@ -125,48 +169,70 @@ const orders = () => {
     pickedCategory.toLowerCase() === "toutes"
       ? orders
       : orders.filter(
-          (order) =>
-            order.status.toLowerCase() === pickedCategory.toLowerCase(),
+          (order: any) =>
+            order.order_status.toLowerCase() === pickedCategory.toLowerCase(),
         );
 
-  //
-  const ITEMS_PER_PAGE = 6;
+  const getVisiblePages = () => {
+    const delta = 1;
 
-  const [currentPage, setCurrentPage] = useState(1);
+    const range = [];
 
-  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
+    const start = Math.max(1, currentPage - delta);
+    const end = Math.min(totalPages, currentPage + delta);
 
-  const paginatedOrders = filteredOrders.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
-  );
+    // Always first page
+    if (start > 1) {
+      range.push(1);
+    }
+
+    // Left dots
+    if (start > 2) {
+      range.push("...");
+    }
+
+    // Middle pages
+    for (let i = start; i <= end; i++) {
+      range.push(i);
+    }
+
+    // Right dots
+    if (end < totalPages - 1) {
+      range.push("...");
+    }
+
+    // Always last page
+    if (end < totalPages) {
+      range.push(totalPages);
+    }
+
+    return range;
+  };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   if (orders.length < 1) {
     return (
       <View className="items-center justify-center py-20 px-6">
-    
-    {/* Icon */}
-    <View className="w-24 h-24 rounded-full bg-gray-100 items-center justify-center mb-6">
-      <Text className="text-5xl">
-        📦
-      </Text>
-    </View>
+        {/* Icon */}
+        <View className="w-24 h-24 rounded-full bg-gray-100 items-center justify-center mb-6">
+          <Text className="text-5xl">📦</Text>
+        </View>
 
-    {/* Title */}
-    <Text className="text-2xl font-bold text-gray-900 text-center">
-      Aucune commande
-    </Text>
+        {/* Title */}
+        <Text className="text-2xl font-bold text-gray-900 text-center">
+          Aucune commande
+        </Text>
 
-    {/* Description */}
-    <Text className="text-gray-500 text-center mt-3 leading-6">
-      Les commandes apparaîtront ici
-      une fois que vos clients
-      commenceront à acheter.
-    </Text>
-
-    
-  </View>
-    )
+        {/* Description */}
+        <Text className="text-gray-500 text-center mt-3 leading-6">
+          Les commandes apparaîtront ici une fois que vos clients commenceront à
+          acheter.
+        </Text>
+      </View>
+    );
   }
 
   return (
@@ -226,60 +292,38 @@ const orders = () => {
           </View>
           {/* products list */}
           <View className="flex-col gap-3">
-            {paginatedOrders.map((item) => {
-              const pending = item.status === "En attente";
-              const delivered = item.status === "Livrée";
-              const confirmed = item.status === "Confirmée";
+            {filteredOrders.map((item: any) => {
+              const orderConfig = orderStatusConfig[item.order_status];
+              const paymentConfig = paymentStatusConfig[item.payment_status];
+              const fulfillmentConfig =
+                fulfillmentStatusConfig[item.fulfillment_status];
 
               return (
                 <TouchableOpacity
                   key={item.id}
                   activeOpacity={0.85}
-                  className={`bg-white border border-gray-100 rounded-3xl p-4 shadow-sm border-l-4 ${
-                          pending
-                            ? "border-l-yellow-400"
-                            : delivered
-                              ? "border-l-green-700"
-                              : confirmed
-                                ? "border-l-blue-700"
-                                : "border-l-red-700"
-                        }`}
+                  className={`bg-white border border-gray-100 rounded-3xl p-4 shadow-sm border-l-4 ${orderConfig.border}`}
                 >
                   {/* Header */}
                   <View className="flex-row items-start justify-between">
                     <View>
                       <Text className="text-lg font-bold text-black">
-                        {item.orderNumber}
+                        #ORD-{item.id}
                       </Text>
 
                       <Text className="text-gray-500 mt-1">
-                        {item.customer}
+                        {item.orderCustomer?.name}
                       </Text>
                     </View>
 
+                    {/* badge */}
                     <View
-                      className={`px-3 py-1 rounded-full ${
-                        pending
-                          ? "bg-yellow-100"
-                          : delivered
-                            ? "bg-green-100"
-                            : confirmed
-                              ? "bg-blue-100"
-                              : "bg-red-100"
-                      }`}
+                      className={`px-3 py-1 rounded-full ${orderConfig.badge}`}
                     >
                       <Text
-                        className={`text-xs font-semibold ${
-                          pending
-                            ? "text-yellow-700"
-                            : delivered
-                              ? "text-green-700"
-                              : confirmed
-                                ? "text-blue-700"
-                                : "text-red-700"
-                        }`}
+                        className={`text-xs font-semibold ${orderConfig.text}`}
                       >
-                        {item.status}
+                        {orderConfig.label}
                       </Text>
                     </View>
                   </View>
@@ -288,12 +332,13 @@ const orders = () => {
                   <View className="h-px bg-gray-100 my-4" />
 
                   {/* Infos */}
+                  {/* Infos */}
                   <View className="gap-y-2">
                     <View className="flex-row justify-between">
-                      <Text className="text-gray-500">Livraison</Text>
+                      <Text className="text-gray-500">Méthode</Text>
 
-                      <Text className="font-medium text-black">
-                        {item.deliveryMethod}
+                      <Text className="font-medium text-black capitalize">
+                        {item.delivery_method}
                       </Text>
                     </View>
 
@@ -301,7 +346,7 @@ const orders = () => {
                       <Text className="text-gray-500">Date</Text>
 
                       <Text className="font-medium text-black">
-                        {item.date}
+                        {new Date(item.createdAt).toLocaleDateString("fr-FR")}
                       </Text>
                     </View>
 
@@ -309,7 +354,25 @@ const orders = () => {
                       <Text className="text-gray-500">Montant</Text>
 
                       <Text className="text-lg font-bold text-black">
-                        {item.total} MAD
+                        {item.total_price} MAD
+                      </Text>
+                    </View>
+
+                    <View className="flex-row justify-between">
+                      <Text className="text-gray-500">Paiement</Text>
+
+                      <Text className={`font-semibold ${paymentConfig.color}`}>
+                        {paymentConfig.label}
+                      </Text>
+                    </View>
+
+                    <View className="flex-row justify-between">
+                      <Text className="text-gray-500">Fulfillment</Text>
+
+                      <Text
+                        className={`font-semibold ${fulfillmentConfig.color}`}
+                      >
+                        {fulfillmentConfig.label}
                       </Text>
                     </View>
                   </View>
@@ -318,39 +381,30 @@ const orders = () => {
             })}
             {/* PAGINATION */}
             {totalPages > 1 && (
-              <View className="flex-row items-center justify-between mt-6">
-                {/* Previous */}
-                <TouchableOpacity
-                  disabled={currentPage === 1}
-                  onPress={() => setCurrentPage((prev: any) => prev - 1)}
-                  className={`px-5 py-3 rounded-2xl ${
-                    currentPage === 1 ? "bg-gray-200" : "bg-black"
-                  }`}
-                >
-                  <Text
-                    className={`font-semibold ${
-                      currentPage === 1 ? "text-gray-400" : "text-white"
-                    }`}
-                  >
-                    Précédent
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Pages */}
-                <View className="flex-row items-center gap-2">
-                  {Array.from({ length: totalPages }).map((_, index) => {
-                    const page = index + 1;
-
+              <View className="mt-6 gap-y-3">
+                {/* Page numbers row */}
+                <View className="flex-row items-center justify-center gap-2 flex-wrap">
+                  {getVisiblePages().map((page, index) => {
+                    if (page === "...") {
+                      return (
+                        <View
+                          key={`dots-${index}`}
+                          className="w-9 h-9 items-center justify-center"
+                        >
+                          <Text className="text-gray-400 font-bold">···</Text>
+                        </View>
+                      );
+                    }
                     return (
                       <TouchableOpacity
-                        key={page}
-                        onPress={() => setCurrentPage(page)}
-                        className={`w-10 h-10 rounded-xl items-center justify-center ${
+                        key={`page-${page}`}
+                        onPress={() => setCurrentPage(Number(page))}
+                        className={`w-9 h-9 rounded-xl items-center justify-center ${
                           currentPage === page ? "bg-black" : "bg-gray-100"
                         }`}
                       >
                         <Text
-                          className={`font-semibold ${
+                          className={`font-semibold text-sm ${
                             currentPage === page ? "text-white" : "text-black"
                           }`}
                         >
@@ -361,24 +415,46 @@ const orders = () => {
                   })}
                 </View>
 
-                {/* Next */}
-                <TouchableOpacity
-                  disabled={currentPage === totalPages}
-                  onPress={() => setCurrentPage((prev: any) => prev + 1)}
-                  className={`px-5 py-3 rounded-2xl ${
-                    currentPage === totalPages ? "bg-gray-200" : "bg-black"
-                  }`}
-                >
-                  <Text
-                    className={`font-semibold ${
-                      currentPage === totalPages
-                        ? "text-gray-400"
-                        : "text-white"
+                {/* Prev / Page info / Next row */}
+                <View className="flex-row items-center justify-between">
+                  <TouchableOpacity
+                    disabled={currentPage === 1}
+                    onPress={() => setCurrentPage((prev) => prev - 1)}
+                    className={`px-4 py-2.5 rounded-2xl ${
+                      currentPage === 1 ? "bg-gray-100" : "bg-black"
                     }`}
                   >
-                    Suivant
+                    <Text
+                      className={`font-semibold text-sm ${
+                        currentPage === 1 ? "text-gray-400" : "text-white"
+                      }`}
+                    >
+                      ← Précédent
+                    </Text>
+                  </TouchableOpacity>
+
+                  <Text className="text-gray-400 text-sm font-medium">
+                    {currentPage} / {totalPages}
                   </Text>
-                </TouchableOpacity>
+
+                  <TouchableOpacity
+                    disabled={currentPage === totalPages}
+                    onPress={() => setCurrentPage((prev) => prev + 1)}
+                    className={`px-4 py-2.5 rounded-2xl ${
+                      currentPage === totalPages ? "bg-gray-100" : "bg-black"
+                    }`}
+                  >
+                    <Text
+                      className={`font-semibold text-sm ${
+                        currentPage === totalPages
+                          ? "text-gray-400"
+                          : "text-white"
+                      }`}
+                    >
+                      Suivant →
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
           </View>
