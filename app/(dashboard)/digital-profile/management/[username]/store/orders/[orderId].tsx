@@ -1,23 +1,30 @@
-import { getSingleOrder } from "@/app/(dashboard)/digital-profile/api/store/orders";
+import { getSingleOrder, updateOrder } from "@/app/(dashboard)/digital-profile/api/store/orders";
 import { router, useLocalSearchParams } from "expo-router";
 import {
-    ArrowLeft,
-    CheckCircle,
-    Clock,
-    Copy,
-    MapPin,
-    Package,
-    PackageCheck,
-    RefreshCw,
-    Truck,
-    User,
-    XCircle,
+  ArrowLeft,
+  CheckCircle,
+  Clock,
+  Copy,
+  MapPin,
+  Package,
+  PackageCheck,
+  RefreshCw,
+  Truck,
+  User,
+  XCircle,
 } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import * as Clipboard from "expo-clipboard";
 import { Image } from "react-native";
+import Loading from "../../components/Loading";
 
 const orderStatusConfig: Record<
   string,
@@ -197,23 +204,25 @@ const SingleOrderPage = () => {
   const [activePaymentStatus, setActivePaymentStatus] = useState<string>("");
   const [activeFulfillmentStatus, setActiveFulfillmentStatus] =
     useState<string>("");
+  const [note, setNote] = useState("");
 
-    const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
-const handleCopy = async (value: string, field: string) => {
-  await Clipboard.setStringAsync(value);
+  const handleCopy = async (value: string, field: string) => {
+    await Clipboard.setStringAsync(value);
 
-  setCopiedField(field);
+    setCopiedField(field);
 
-  setTimeout(() => {
-    setCopiedField(null);
-  }, 2000);
-};
+    setTimeout(() => {
+      setCopiedField(null);
+    }, 2000);
+  };
 
   const mediaUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
 
   const { orderId, username } = useLocalSearchParams();
 
+  // fetch order
   useEffect(() => {
     const fetchOrder = async () => {
       setLoading(true);
@@ -232,6 +241,7 @@ const handleCopy = async (value: string, field: string) => {
         setActiveStatus(res.order_status);
         setActivePaymentStatus(res.payment_status);
         setActiveFulfillmentStatus(res.fulfillment_status?.toLowerCase());
+        setNote(res.note);
       } catch (error) {
         console.log(error);
       } finally {
@@ -241,6 +251,42 @@ const handleCopy = async (value: string, field: string) => {
 
     fetchOrder();
   }, [orderId, username]);
+
+  // Update order
+  const handleUpdateOrder = async () => {
+  try {
+    setLoading(true);
+
+    if (typeof username !== "string") return;
+
+    const parsedOrderId = Number(orderId);
+
+    if (isNaN(parsedOrderId)) return;
+
+    const updatedOrder = await updateOrder({
+      username,
+      orderId: parsedOrderId,
+      orderData: {
+        note,
+        order_status: activeStatus,
+        payment_status: activePaymentStatus,
+        fulfillment_status: activeFulfillmentStatus,
+      },
+    });
+
+    setOrder(updatedOrder);
+  } catch (error: any) {
+    console.log(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  if (loading) {
+    return (
+      <Loading />
+    )
+  }
 
   return (
     <View>
@@ -273,7 +319,7 @@ const handleCopy = async (value: string, field: string) => {
 
       {/* Order status selector */}
       <View className="bg-white p-4 mt-6 shadow-md rounded-2xl">
-        <Text className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+        <Text className="font-semibold text-gray-400 uppercase tracking-widest mb-3">
           Statut de la commande
         </Text>
 
@@ -327,11 +373,24 @@ const handleCopy = async (value: string, field: string) => {
             );
           })}
         </View>
+
+        <View className="mt-3">
+          <Text className="text-sm uppercase text-gray-600 text">Note</Text>
+          <TextInput
+            value={note}
+            onChangeText={setNote}
+            placeholder="Écrire une note..."
+            multiline
+            numberOfLines={5}
+            textAlignVertical="top"
+            className="bg-white border border-gray-200 rounded-2xl p-4 text-base min-h-[120px]"
+          />
+        </View>
       </View>
 
       {/* Paiement */}
       <View className="bg-white p-4 mt-6 shadow-md rounded-2xl">
-        <Text className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+        <Text className="font-semibold text-gray-400 uppercase tracking-widest mb-3">
           Paiement
         </Text>
 
@@ -389,7 +448,7 @@ const handleCopy = async (value: string, field: string) => {
 
       {/* Fulfillment */}
       <View className="bg-white p-4 mt-6 shadow-md rounded-2xl">
-        <Text className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+        <Text className="font-semibold text-gray-400 uppercase tracking-widest mb-3">
           Livraison
         </Text>
 
@@ -449,7 +508,7 @@ const handleCopy = async (value: string, field: string) => {
           <View className="w-9 h-9 rounded-xl bg-gray-100 items-center justify-center">
             <PackageCheck size={18} color="#374151" />
           </View>
-          <Text className="text-base font-bold text-gray-800">
+          <Text className="text-lg font-bold text-gray-800">
             Informations sur la commande
           </Text>
         </View>
@@ -568,7 +627,7 @@ const handleCopy = async (value: string, field: string) => {
             <User size={18} color="#374151" />
           </View>
           <View>
-            <Text className="text-sm font-bold text-gray-900">Client</Text>
+            <Text className="text-lg font-bold text-gray-900">Client</Text>
             <Text className="text-xs text-gray-400">
               Informations de contact
             </Text>
@@ -594,18 +653,18 @@ const handleCopy = async (value: string, field: string) => {
                 {field.value}
               </Text>
               <TouchableOpacity
-  activeOpacity={0.7}
-  onPress={() => handleCopy(field.value!, field.label)}
-  className={`w-8 h-8 rounded-lg items-center justify-center ${
-    copiedField === field.label ? "bg-green-100" : "bg-gray-100"
-  }`}
->
-  {copiedField === field.label ? (
-    <CheckCircle size={14} color="#16A34A" />
-  ) : (
-    <Copy size={14} color="#6B7280" />
-  )}
-</TouchableOpacity>
+                activeOpacity={0.7}
+                onPress={() => handleCopy(field.value!, field.label)}
+                className={`w-8 h-8 rounded-lg items-center justify-center ${
+                  copiedField === field.label ? "bg-green-100" : "bg-gray-100"
+                }`}
+              >
+                {copiedField === field.label ? (
+                  <CheckCircle size={14} color="#16A34A" />
+                ) : (
+                  <Copy size={14} color="#6B7280" />
+                )}
+              </TouchableOpacity>
             </View>
           ))}
       </View>
@@ -614,10 +673,11 @@ const handleCopy = async (value: string, field: string) => {
       <View className="gap-2">
         {/* save */}
         <TouchableOpacity
-          activeOpacity={0.85}
-          disabled={loading}
-          className="bg-black rounded-2xl py-4 items-center shadow-md"
-        >
+  activeOpacity={0.85}
+  disabled={loading}
+  onPress={handleUpdateOrder}
+  className="bg-black rounded-2xl py-4 items-center shadow-md"
+>
           <Text className="text-white font-bold text-base">
             {loading ? "Loading..." : "Modifier le commande"}
           </Text>
