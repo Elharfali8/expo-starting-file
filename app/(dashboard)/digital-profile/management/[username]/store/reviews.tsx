@@ -9,12 +9,17 @@ import {
   View,
 } from "react-native";
 
-import { getAllReviews } from "@/app/(dashboard)/digital-profile/api/store/reviews";
+import {
+  deleteReview,
+  getAllReviews,
+  updateReviewStatus,
+} from "@/app/(dashboard)/digital-profile/api/store/reviews";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { useLocalSearchParams } from "expo-router";
 
 import { useEffect } from "react";
+import DeleteOrderModal from "./components/DeleteOrderModal";
 
 // ── moved outside component ──────────────────────────────────────────────────
 const TABS = ["Tous", "En attente", "Approuvé", "Rejeté"];
@@ -40,6 +45,14 @@ const Reviews = () => {
   const [activeTab, setActiveTab] = useState("Tous");
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const [deleting, setDeleting] = useState(false);
+
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+
+  const [selectedReview, setSelectedReview] = useState<any>(null);
 
   const { username } = useLocalSearchParams();
 
@@ -98,6 +111,76 @@ const Reviews = () => {
 
   const handleDelete = (id: number) => {
     setReviews((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const handleUpdateReviewStatus = async ({
+    reviewId,
+    status,
+  }: {
+    reviewId: number;
+    status: "approved" | "rejected";
+  }) => {
+    try {
+      if (typeof username !== "string") return;
+
+      await updateReviewStatus({
+        username,
+        reviewId,
+        status,
+      });
+
+      setReviews((prev) =>
+        prev.map((review) =>
+          review.id === reviewId
+            ? {
+                ...review,
+                status,
+              }
+            : review,
+        ),
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDeleteReview = async () => {
+    try {
+      setDeleting(true);
+
+      if (typeof username !== "string") return;
+
+      if (!selectedReview) return;
+
+      await deleteReview({
+        username,
+        reviewId: selectedReview.id,
+      });
+
+      setReviews((prev) =>
+        prev.filter((review) => review.id !== selectedReview.id),
+      );
+
+      setDeleteSuccess(true);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (deleting) return;
+
+    setDeleteModalVisible(false);
+  };
+
+  const handleSuccessClose = () => {
+    setDeleteSuccess(false);
+
+    setDeleteModalVisible(false);
+
+    setSelectedReview(null);
   };
 
   const renderStars = (count: number) => {
@@ -160,13 +243,51 @@ const Reviews = () => {
         <Text style={styles.reviewText}>{item.comment}</Text>
 
         {/* Delete */}
-        <TouchableOpacity
-          style={styles.deleteButton}
-          activeOpacity={0.8}
-          onPress={() => handleDelete(item.id)}
-        >
-          <Ionicons name="trash-outline" size={18} color="#EF4444" />
-        </TouchableOpacity>
+        <View style={styles.actionsRow}>
+          {/* approve */}
+          {item.status !== "approved" && (
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={styles.approveButton}
+              onPress={() =>
+                handleUpdateReviewStatus({
+                  reviewId: item.id,
+                  status: "approved",
+                })
+              }
+            >
+              <Text style={styles.approveButtonText}>Approuver</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* reject */}
+          {item.status !== "rejected" && (
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={styles.rejectButton}
+              onPress={() =>
+                handleUpdateReviewStatus({
+                  reviewId: item.id,
+                  status: "rejected",
+                })
+              }
+            >
+              <Text style={styles.rejectButtonText}>Rejeter</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            style={styles.deleteButton}
+            activeOpacity={0.8}
+            onPress={() => {
+              setSelectedReview(item);
+
+              setDeleteModalVisible(true);
+            }}
+          >
+            <Ionicons name="trash-outline" size={18} color="#EF4444" />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
@@ -300,6 +421,16 @@ const Reviews = () => {
           </TouchableOpacity>
         </View>
       )}
+
+      <DeleteOrderModal
+        visible={deleteModalVisible}
+        onClose={handleCloseDeleteModal}
+        onDelete={handleDeleteReview}
+        onSuccessClose={handleSuccessClose}
+        deleting={deleting}
+        deleteSuccess={deleteSuccess}
+        customerName={selectedReview?.client_name}
+      />
     </SafeAreaView>
   );
 };
@@ -430,7 +561,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FEE2E2",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 14,
   },
 
   empty: {
@@ -505,5 +635,37 @@ const styles = StyleSheet.create({
 
   activePageText: {
     color: "#FFF",
+  },
+  actionsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 16,
+  },
+
+  approveButton: {
+    backgroundColor: "#059669",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+
+  approveButtonText: {
+    color: "#FFF",
+    fontWeight: "700",
+    fontSize: 13,
+  },
+
+  rejectButton: {
+    backgroundColor: "#DC2626",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+
+  rejectButtonText: {
+    color: "#FFF",
+    fontWeight: "700",
+    fontSize: 13,
   },
 });

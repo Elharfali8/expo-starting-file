@@ -53,3 +53,77 @@ export async function getAllReviews({
 
   return data;
 }
+
+type UpdateReviewStatusProps = {
+  username: string;
+  reviewId: number;
+  status: "pending" | "approved" | "rejected";
+};
+
+export async function updateReviewStatus({
+  username,
+  reviewId,
+  status,
+}: UpdateReviewStatusProps) {
+  const token = await getToken();
+
+  const response = await fetch(
+    `${BASE_URL}/users/digital-profile/store/reviews/status/update/${username}`,
+    {
+      method: "PUT",
+
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+
+      body: JSON.stringify({
+        reviewId,
+        status,
+      }),
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || "Failed to update review status",
+    );
+  }
+
+  return data;
+}
+
+
+export async function deleteReview({
+  username,
+  reviewId,
+}: {
+  username: string;
+  reviewId: number;
+}) {
+  const token = await getToken();
+
+  const response = await fetch(
+    `${BASE_URL}/users/digital-profile/store/reviews/delete/${reviewId}/${username}`,
+    {
+      method: "DELETE",
+
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message || "Failed to delete review",
+    );
+  }
+
+  return data;
+}
