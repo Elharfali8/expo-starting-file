@@ -102,3 +102,34 @@ export async function updateOrder({
 
   return data.order;
 }
+
+
+// DELETE ORDER
+export async function deleteOrder({
+  username,
+  orderId,
+}: {
+  username: string;
+  orderId: number;
+}): Promise<string> {
+  const token = await getToken();
+
+  const response = await fetch(
+    `${BASE_URL}/users/digital-profile/store/orders/${orderId}/${username}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to delete order");
+  }
+
+  return data.message;
+}

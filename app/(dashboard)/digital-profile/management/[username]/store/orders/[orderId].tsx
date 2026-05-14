@@ -1,4 +1,8 @@
-import { getSingleOrder, updateOrder } from "@/app/(dashboard)/digital-profile/api/store/orders";
+import {
+  deleteOrder,
+  getSingleOrder,
+  updateOrder,
+} from "@/app/(dashboard)/digital-profile/api/store/orders";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ArrowLeft,
@@ -25,6 +29,7 @@ import {
 import * as Clipboard from "expo-clipboard";
 import { Image } from "react-native";
 import Loading from "../../components/Loading";
+import DeleteOrderModal from "../components/DeleteOrderModal";
 
 const orderStatusConfig: Record<
   string,
@@ -207,6 +212,9 @@ const SingleOrderPage = () => {
   const [note, setNote] = useState("");
 
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
 
   const handleCopy = async (value: string, field: string) => {
     await Clipboard.setStringAsync(value);
@@ -254,38 +262,72 @@ const SingleOrderPage = () => {
 
   // Update order
   const handleUpdateOrder = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    if (typeof username !== "string") return;
+      if (typeof username !== "string") return;
 
-    const parsedOrderId = Number(orderId);
+      const parsedOrderId = Number(orderId);
 
-    if (isNaN(parsedOrderId)) return;
+      if (isNaN(parsedOrderId)) return;
 
-    const updatedOrder = await updateOrder({
-      username,
-      orderId: parsedOrderId,
-      orderData: {
-        note,
-        order_status: activeStatus,
-        payment_status: activePaymentStatus,
-        fulfillment_status: activeFulfillmentStatus,
-      },
-    });
+      const updatedOrder = await updateOrder({
+        username,
+        orderId: parsedOrderId,
+        orderData: {
+          note,
+          order_status: activeStatus,
+          payment_status: activePaymentStatus,
+          fulfillment_status: activeFulfillmentStatus,
+        },
+      });
 
-    setOrder(updatedOrder);
-  } catch (error: any) {
-    console.log(error);
-  } finally {
-    setLoading(false);
-  }
-};
+      setOrder(updatedOrder);
+    } catch (error: any) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteOrder = async () => {
+    try {
+      setDeleting(true);
+
+      if (typeof username !== "string") return;
+
+      const parsedOrderId = Number(orderId);
+
+      if (isNaN(parsedOrderId)) return;
+
+      await deleteOrder({
+        username,
+        orderId: parsedOrderId,
+      });
+
+      setDeleteSuccess(true);
+    } catch (error) {
+      console.log("DELETE ERROR:", error);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (deleting) return;
+
+    setDeleteModalVisible(false);
+  };
+
+  const handleSuccessClose = () => {
+    setDeleteSuccess(false);
+    setDeleteModalVisible(false);
+
+    router.back();
+  };
 
   if (loading) {
-    return (
-      <Loading />
-    )
+    return <Loading />;
   }
 
   return (
@@ -673,11 +715,11 @@ const SingleOrderPage = () => {
       <View className="gap-2">
         {/* save */}
         <TouchableOpacity
-  activeOpacity={0.85}
-  disabled={loading}
-  onPress={handleUpdateOrder}
-  className="bg-black rounded-2xl py-4 items-center shadow-md"
->
+          activeOpacity={0.85}
+          disabled={loading}
+          onPress={handleUpdateOrder}
+          className="bg-black rounded-2xl py-4 items-center shadow-md"
+        >
           <Text className="text-white font-bold text-base">
             {loading ? "Loading..." : "Modifier le commande"}
           </Text>
@@ -686,6 +728,7 @@ const SingleOrderPage = () => {
         <TouchableOpacity
           activeOpacity={0.85}
           disabled={loading}
+          onPress={() => setDeleteModalVisible(true)}
           className="bg-red-500 rounded-2xl py-4 items-center shadow-md"
         >
           <Text className="text-white font-bold text-base capitalize">
@@ -693,6 +736,15 @@ const SingleOrderPage = () => {
           </Text>
         </TouchableOpacity>
       </View>
+      <DeleteOrderModal
+        visible={deleteModalVisible}
+        onClose={handleCloseDeleteModal}
+        onDelete={handleDeleteOrder}
+        onSuccessClose={handleSuccessClose}
+        deleting={deleting}
+        deleteSuccess={deleteSuccess}
+        customerName={order?.orderCustomer?.name}
+      />
     </View>
   );
 };
