@@ -1,11 +1,6 @@
 import { getAllCustomers } from "@/app/(dashboard)/digital-profile/api/store/customers";
-import { useLocalSearchParams } from "expo-router";
-import {
-  ChevronRight,
-  Phone,
-  Plus,
-  Search,
-} from "lucide-react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { ChevronRight, Phone, Plus, Search } from "lucide-react-native";
 
 import React, { useEffect, useState } from "react";
 
@@ -119,9 +114,7 @@ const Customers = () => {
       <View className="bg-white rounded-3xl mt-5 overflow-hidden border border-slate-200">
         {/* HEADER */}
         <View className="p-4 border-b border-slate-100">
-          <Text className="text-[20px] font-bold text-slate-900">
-            Clients
-          </Text>
+          <Text className="text-[20px] font-bold text-slate-900">Clients</Text>
 
           {/* SEARCH */}
           <View className="mt-4 flex-row items-center bg-slate-100 rounded-2xl px-4 h-12">
@@ -152,6 +145,11 @@ const Customers = () => {
             renderItem={({ item }) => (
               <TouchableOpacity
                 activeOpacity={0.8}
+                onPress={() =>
+                  router.push(
+                    `/digital-profile/management/${username}/store/customers/${item.id}`,
+                  )
+                }
                 className="px-4 py-4 border-b border-slate-100 flex-row items-center justify-between"
               >
                 <View className="flex-row items-center flex-1">
@@ -200,9 +198,7 @@ const Customers = () => {
                     key={`dots-${index}`}
                     className="w-9 h-9 items-center justify-center"
                   >
-                    <Text className="text-gray-400 font-bold">
-                      ···
-                    </Text>
+                    <Text className="text-gray-400 font-bold">···</Text>
                   </View>
                 );
               }
@@ -212,16 +208,12 @@ const Customers = () => {
                   key={`page-${page}`}
                   onPress={() => setCurrentPage(Number(page))}
                   className={`w-9 h-9 rounded-xl items-center justify-center ${
-                    currentPage === page
-                      ? "bg-black"
-                      : "bg-gray-100"
+                    currentPage === page ? "bg-black" : "bg-gray-100"
                   }`}
                 >
                   <Text
                     className={`font-semibold text-sm ${
-                      currentPage === page
-                        ? "text-white"
-                        : "text-black"
+                      currentPage === page ? "text-white" : "text-black"
                     }`}
                   >
                     {page}
@@ -235,20 +227,14 @@ const Customers = () => {
           <View className="flex-row items-center justify-between">
             <TouchableOpacity
               disabled={currentPage === 1}
-              onPress={() =>
-                setCurrentPage((prev) => prev - 1)
-              }
+              onPress={() => setCurrentPage((prev) => prev - 1)}
               className={`px-4 py-2.5 rounded-2xl ${
-                currentPage === 1
-                  ? "bg-gray-100"
-                  : "bg-black"
+                currentPage === 1 ? "bg-gray-100" : "bg-black"
               }`}
             >
               <Text
                 className={`font-semibold text-sm ${
-                  currentPage === 1
-                    ? "text-gray-400"
-                    : "text-white"
+                  currentPage === 1 ? "text-gray-400" : "text-white"
                 }`}
               >
                 ← Précédent
@@ -261,20 +247,14 @@ const Customers = () => {
 
             <TouchableOpacity
               disabled={currentPage === totalPages}
-              onPress={() =>
-                setCurrentPage((prev) => prev + 1)
-              }
+              onPress={() => setCurrentPage((prev) => prev + 1)}
               className={`px-4 py-2.5 rounded-2xl ${
-                currentPage === totalPages
-                  ? "bg-gray-100"
-                  : "bg-black"
+                currentPage === totalPages ? "bg-gray-100" : "bg-black"
               }`}
             >
               <Text
                 className={`font-semibold text-sm ${
-                  currentPage === totalPages
-                    ? "text-gray-400"
-                    : "text-white"
+                  currentPage === totalPages ? "text-gray-400" : "text-white"
                 }`}
               >
                 Suivant →
