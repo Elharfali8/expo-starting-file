@@ -3,24 +3,25 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Filter, Search, X } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Loading from "../../components/Loading";
 import {
-    fulfillmentStatusConfig,
-    orderStatusConfig,
-    paymentStatusConfig,
+  fulfillmentStatusConfig,
+  orderStatusConfig,
+  paymentStatusConfig,
 } from "../constants/orders";
 
 const orders = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [pickedCategory, setPickedCategory] = useState<string>("toutes");
+  const [search, setSearch] = useState("");
 
   const [loading, setLoading] = useState(false);
   const { username } = useLocalSearchParams();
@@ -29,18 +30,31 @@ const orders = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  const [searchInput, setSearchInput] = useState("");
+
+  // Debounce: only update `search` 500ms after user stops typing
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSearch(searchInput);
+      setCurrentPage(1); // reset to page 1 on new search
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
+
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
-
       try {
         if (typeof username !== "string") return;
-
         const res = await getAllOrders({
           username,
           page: currentPage,
+          status:
+            pickedCategory.toLowerCase() === "toutes"
+              ? undefined
+              : pickedCategory,
+          search,
         });
-
         setOrders(res.orders);
         setTotalPages(res.totalPages);
       } catch (error) {
@@ -51,86 +65,7 @@ const orders = () => {
     };
 
     fetchOrders();
-  }, [username, currentPage]);
-
-  const handleOpenModal = (item: any) => {
-    setModalVisible(true);
-  };
-
-  // const orders = [
-  //   {
-  //     id: 1,
-  //     orderNumber: "#ORD-1024",
-  //     customer: "Ahmed Benali",
-  //     deliveryMethod: "Livraison à domicile",
-  //     total: 1299,
-  //     date: "12 Mai 2026",
-  //     status: "En attente",
-  //   },
-  //   {
-  //     id: 2,
-  //     orderNumber: "#ORD-1025",
-  //     customer: "Sara Amrani",
-  //     deliveryMethod: "Retrait magasin",
-  //     total: 895,
-  //     date: "11 Mai 2026",
-  //     status: "Confirmée",
-  //   },
-  //   {
-  //     id: 3,
-  //     orderNumber: "#ORD-1026",
-  //     customer: "Youssef Tazi",
-  //     deliveryMethod: "Livraison express",
-  //     total: 749,
-  //     date: "10 Mai 2026",
-  //     status: "Livrée",
-  //   },
-  //   {
-  //     id: 4,
-  //     orderNumber: "#ORD-1027",
-  //     customer: "Nadia Karim",
-  //     deliveryMethod: "Livraison à domicile",
-  //     total: 1999,
-  //     date: "09 Mai 2026",
-  //     status: "En attente",
-  //   },
-  //   {
-  //     id: 5,
-  //     orderNumber: "#ORD-1028",
-  //     customer: "Mehdi Alaoui",
-  //     deliveryMethod: "Retrait magasin",
-  //     total: 149,
-  //     date: "08 Mai 2026",
-  //     status: "Annulée",
-  //   },
-  //   {
-  //     id: 6,
-  //     orderNumber: "#ORD-1029",
-  //     customer: "Salma Idrissi",
-  //     deliveryMethod: "Livraison express",
-  //     total: 599,
-  //     date: "07 Mai 2026",
-  //     status: "Confirmée",
-  //   },
-  //   {
-  //     id: 7,
-  //     orderNumber: "#ORD-1030",
-  //     customer: "Karim Chraibi",
-  //     deliveryMethod: "Livraison à domicile",
-  //     total: 399,
-  //     date: "06 Mai 2026",
-  //     status: "Livrée",
-  //   },
-  //   {
-  //     id: 8,
-  //     orderNumber: "#ORD-1031",
-  //     customer: "Imane El Fassi",
-  //     deliveryMethod: "Retrait magasin",
-  //     total: 499,
-  //     date: "05 Mai 2026",
-  //     status: "En attente",
-  //   },
-  // ];
+  }, [username, currentPage, pickedCategory, search]); // ← add both here
 
   const categories = [
     {
@@ -163,15 +98,6 @@ const orders = () => {
       label: "Annulée",
     },
   ];
-
-  //
-  const filteredOrders =
-    pickedCategory.toLowerCase() === "toutes"
-      ? orders
-      : orders.filter(
-          (order: any) =>
-            order.order_status.toLowerCase() === pickedCategory.toLowerCase(),
-        );
 
   const getVisiblePages = () => {
     const delta = 1;
@@ -213,27 +139,7 @@ const orders = () => {
     return <Loading />;
   }
 
-  if (orders.length < 1) {
-    return (
-      <View className="items-center justify-center py-20 px-6">
-        {/* Icon */}
-        <View className="w-24 h-24 rounded-full bg-gray-100 items-center justify-center mb-6">
-          <Text className="text-5xl">📦</Text>
-        </View>
 
-        {/* Title */}
-        <Text className="text-2xl font-bold text-gray-900 text-center">
-          Aucune commande
-        </Text>
-
-        {/* Description */}
-        <Text className="text-gray-500 text-center mt-3 leading-6">
-          Les commandes apparaîtront ici une fois que vos clients commenceront à
-          acheter.
-        </Text>
-      </View>
-    );
-  }
 
   return (
     <>
@@ -262,6 +168,8 @@ const orders = () => {
                   placeholder="Recherche une commande"
                   placeholderTextColor="#9CA3AF"
                   className="flex-1 text-[15px] text-black"
+                  value={searchInput}
+                  onChangeText={setSearchInput}
                 />
               </View>
             </View>
@@ -269,7 +177,7 @@ const orders = () => {
             {/* Filter Button */}
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={handleOpenModal}
+              onPress={() => setModalVisible(true)}
               className="h-12 px-3 bg-black rounded-2xl items-center justify-center flex-row gap-2 shadow-sm"
             >
               <Filter size={18} color="white" />
@@ -277,13 +185,34 @@ const orders = () => {
               <Text className="text-white font-semibold text-sm">Filters</Text>
             </TouchableOpacity>
           </View>
-          {/* -- */}
+
+          {orders.length < 1 ? (
+            <View className="items-center justify-center py-20 px-6">
+        {/* Icon */}
+        <View className="w-24 h-24 rounded-full bg-gray-100 items-center justify-center mb-6">
+          <Text className="text-5xl">📦</Text>
+        </View>
+
+        {/* Title */}
+        <Text className="text-2xl font-bold text-gray-900 text-center">
+          Aucune commande
+        </Text>
+
+        {/* Description */}
+        <Text className="text-gray-500 text-center mt-3 leading-6">
+          Les commandes apparaîtront ici une fois que vos clients commenceront à
+          acheter.
+        </Text>
+      </View>
+          ) : (
+              <>
+            {/* -- */}
           <View className="my-5 items-center flex-row flex-1 gap-3">
             <View className="w-full h-px bg-blue-600 flex-1" />
             <View className="bg-blue-50 px-4 py-2 rounded-full">
               <Text className="font-semibold text-blue-700 text-sm">
-                {filteredOrders.length} commande
-                {filteredOrders.length > 1 ? "s" : ""}
+                {orders.length} commande
+                {orders.length > 1 ? "s" : ""}
                 {" • "}
                 {pickedCategory}
               </Text>
@@ -292,7 +221,7 @@ const orders = () => {
           </View>
           {/* products list */}
           <View className="flex-col gap-3">
-            {filteredOrders.map((item: any) => {
+            {orders.map((item: any) => {
               const orderConfig = orderStatusConfig[item.order_status];
               const paymentConfig = paymentStatusConfig[item.payment_status];
               const fulfillmentConfig =
@@ -462,7 +391,10 @@ const orders = () => {
                 </View>
               </View>
             )}
-          </View>
+          </View>    
+          </>
+          )}
+          
         </View>
       </View>
       {/* MODAL */}
@@ -514,6 +446,7 @@ const orders = () => {
                       activeOpacity={0.85}
                       onPress={() => {
                         setPickedCategory(item.category);
+                        setCurrentPage(1);
                         setModalVisible(false);
                       }}
                       className={`

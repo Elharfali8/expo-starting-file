@@ -7,12 +7,25 @@ const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 type OrdersType = {
   username: string;
   page?: number;
+  status?: string; // ← add
+  search?: string; // ← add
 };
-export async function getAllOrders({ username, page = 1 }: OrdersType) {
+export async function getAllOrders({
+  username,
+  page = 1,
+  status,
+  search,
+}: OrdersType) {
   const token = await getToken();
 
+  // Build query params
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  if (status) params.append("status", status);
+  if (search) params.append("search", search);
+
   const response = await fetch(
-    `${BASE_URL}/users/digital-profile/store/orders/fetch/${username}?page=${page}`,
+    `${BASE_URL}/users/digital-profile/store/orders/fetch/${username}?${params.toString()}`,
     {
       method: "GET",
       headers: {
@@ -103,7 +116,6 @@ export async function updateOrder({
   return data.order;
 }
 
-
 // DELETE ORDER
 export async function deleteOrder({
   username,
@@ -122,7 +134,7 @@ export async function deleteOrder({
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   const data = await response.json();
