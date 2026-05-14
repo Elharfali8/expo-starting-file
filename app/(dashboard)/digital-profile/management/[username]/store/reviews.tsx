@@ -1,99 +1,88 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
+import { getAllReviews } from "@/app/(dashboard)/digital-profile/api/store/reviews";
 import { LinearGradient } from "expo-linear-gradient";
+
+import { useLocalSearchParams } from "expo-router";
+
+import { useEffect } from "react";
 
 // ── moved outside component ──────────────────────────────────────────────────
 const TABS = ["Tous", "En attente", "Approuvé", "Rejeté"];
 
-const REVIEWS_DATA = [
-  {
-    id: "1",
-    product: "Carte support Instagram (NFC et QRCODE) + Cadeau",
-    productId: "#208",
-    name: "Mohamed zerouali",
-    rating: 5,
-    review:
-      "Très bon Quality❤️, ou hta flkhedma sahla, et merci pour le cadeau🙏❤️",
-    status: "Approuvé",
-    date: "02/05/2026",
-  },
-  {
-    id: "2",
-    product: "Carte support Instagram (NFC et QRCODE) + Cadeau",
-    productId: "#208",
-    name: "Abderahman",
-    rating: 5,
-    review:
-      "Nef3tni bzaf flma7al dyali 🙏. lclient dima kaykhali lia follow ou deghya kaydirha 👌",
-    status: "Approuvé",
-    date: "02/05/2026",
-  },
-  {
-    id: "3",
-    product: "Carte support Instagram (NFC et QRCODE) + Cadeau",
-    productId: "#208",
-    name: "Youssef",
-    rating: 5,
-    review:
-      "Produit de très bonne qualité, conforme à mes attentes. Livraison rapide et excellente expérience globale.",
-    status: "Approuvé",
-    date: "30/04/2026",
-  },
-  {
-    id: "4",
-    product: "Carte NFC Pro",
-    productId: "#312",
-    name: "Sara M.",
-    rating: 3,
-    review: "Produit correct mais livraison un peu lente.",
-    status: "En attente",
-    date: "01/05/2026",
-  },
-  {
-    id: "5",
-    product: "Carte NFC Pro",
-    productId: "#312",
-    name: "Khalid B.",
-    rating: 2,
-    review: "Ne correspond pas à la description.",
-    status: "Rejeté",
-    date: "29/04/2026",
-  },
-];
-
 // ── badge style per status ───────────────────────────────────────────────────
 const badgeStyle = (status: string) => {
   switch (status) {
-    case "Approuvé":
+    case "approved":
       return { bg: "#DCFCE7", text: "#16A34A" };
-    case "En attente":
+
+    case "pending":
       return { bg: "#FEF9C3", text: "#CA8A04" };
-    case "Rejeté":
+
+    case "rejected":
       return { bg: "#FEE2E2", text: "#DC2626" };
+
     default:
       return { bg: "#F3F4F6", text: "#6B7280" };
   }
 };
 
-type Review = (typeof REVIEWS_DATA)[number];
-
 const Reviews = () => {
   const [activeTab, setActiveTab] = useState("Tous");
-  const [reviews, setReviews] = useState<Review[]>(REVIEWS_DATA);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const { username } = useLocalSearchParams();
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+
+        if (typeof username !== "string") return;
+
+        const res = await getAllReviews({
+          username,
+        });
+
+        setReviews(res.reviews || []);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [username]);
 
   const filteredReviews =
     activeTab === "Tous"
       ? reviews
-      : reviews.filter((item) => item.status === activeTab);
+      : reviews.filter((item) => {
+          if (activeTab === "Approuvé") {
+            return item.status === "approved";
+          }
+
+          if (activeTab === "En attente") {
+            return item.status === "pending";
+          }
+
+          if (activeTab === "Rejeté") {
+            return item.status === "rejected";
+          }
+
+          return true;
+        });
 
   // logic pagination
   const ITEMS_PER_PAGE = 8;
@@ -107,7 +96,7 @@ const Reviews = () => {
     currentPage * ITEMS_PER_PAGE,
   );
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     setReviews((prev) => prev.filter((r) => r.id !== id));
   };
 
@@ -127,8 +116,16 @@ const Reviews = () => {
     );
   };
 
-  const renderItem = (item: Review) => {
+  const renderItem = (item: any) => {
     const badge = badgeStyle(item.status);
+
+    if (loading) {
+      return (
+        <View style={styles.empty}>
+          <Text style={styles.emptyText}>Chargement...</Text>
+        </View>
+      );
+    }
 
     return (
       <View key={item.id} style={styles.card}>
@@ -136,9 +133,9 @@ const Reviews = () => {
         <View style={styles.topRow}>
           <View style={{ flex: 1 }}>
             <Text style={styles.productTitle} numberOfLines={2}>
-              {item.product}
+              {item.product?.name}
             </Text>
-            <Text style={styles.productId}>ID: {item.productId}</Text>
+            <Text style={styles.productId}>ID: #{item.product?.id}</Text>
           </View>
 
           <View style={styles.rightSide}>
@@ -147,18 +144,20 @@ const Reviews = () => {
                 {item.status}
               </Text>
             </View>
-            <Text style={styles.date}>{item.date}</Text>
+            <Text style={styles.date}>
+              {new Date(item.createdAt).toLocaleDateString("fr-FR")}
+            </Text>
           </View>
         </View>
 
         {/* Reviewer */}
-        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.name}>{item.client_name}</Text>
 
         {/* Stars */}
         {renderStars(item.rating)}
 
         {/* Review text */}
-        <Text style={styles.reviewText}>{item.review}</Text>
+        <Text style={styles.reviewText}>{item.comment}</Text>
 
         {/* Delete */}
         <TouchableOpacity
@@ -231,85 +230,76 @@ const Reviews = () => {
         ) : (
           paginatedReviews.map((item) => renderItem(item))
         )}
-          </ScrollView>
-          {/* PAGINATION */}
-{totalPages > 1 && (
-  <View style={styles.paginationContainer}>
-    
-    {/* Previous */}
-    <TouchableOpacity
-      disabled={currentPage === 1}
-      onPress={() =>
-        setCurrentPage((prev) => prev - 1)
-      }
-      style={[
-        styles.paginationButton,
-        currentPage === 1 && styles.disabledButton,
-      ]}
-    >
-      <Text
-        style={[
-          styles.paginationButtonText,
-          currentPage === 1 && styles.disabledButtonText,
-        ]}
-      >
-        Précédent
-      </Text>
-    </TouchableOpacity>
-
-    {/* Pages */}
-    <View style={styles.pagesContainer}>
-      {Array.from({ length: totalPages }).map((_, index) => {
-        const page = index + 1
-
-        return (
+      </ScrollView>
+      {/* PAGINATION */}
+      {totalPages > 1 && (
+        <View style={styles.paginationContainer}>
+          {/* Previous */}
           <TouchableOpacity
-            key={page}
-            onPress={() => setCurrentPage(page)}
+            disabled={currentPage === 1}
+            onPress={() => setCurrentPage((prev) => prev - 1)}
             style={[
-              styles.pageButton,
-              currentPage === page &&
-                styles.activePageButton,
+              styles.paginationButton,
+              currentPage === 1 && styles.disabledButton,
             ]}
           >
             <Text
               style={[
-                styles.pageText,
-                currentPage === page &&
-                  styles.activePageText,
+                styles.paginationButtonText,
+                currentPage === 1 && styles.disabledButtonText,
               ]}
             >
-              {page}
+              Précédent
             </Text>
           </TouchableOpacity>
-        )
-      })}
-    </View>
 
-    {/* Next */}
-    <TouchableOpacity
-      disabled={currentPage === totalPages}
-      onPress={() =>
-        setCurrentPage((prev) => prev + 1)
-      }
-      style={[
-        styles.paginationButton,
-        currentPage === totalPages &&
-          styles.disabledButton,
-      ]}
-    >
-      <Text
-        style={[
-          styles.paginationButtonText,
-          currentPage === totalPages &&
-            styles.disabledButtonText,
-        ]}
-      >
-        Suivant
-      </Text>
-    </TouchableOpacity>
-  </View>
-)}
+          {/* Pages */}
+          <View style={styles.pagesContainer}>
+            {Array.from({ length: totalPages }).map((_, index) => {
+              const page = index + 1;
+
+              return (
+                <TouchableOpacity
+                  key={page}
+                  onPress={() => setCurrentPage(page)}
+                  style={[
+                    styles.pageButton,
+                    currentPage === page && styles.activePageButton,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.pageText,
+                      currentPage === page && styles.activePageText,
+                    ]}
+                  >
+                    {page}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Next */}
+          <TouchableOpacity
+            disabled={currentPage === totalPages}
+            onPress={() => setCurrentPage((prev) => prev + 1)}
+            style={[
+              styles.paginationButton,
+              currentPage === totalPages && styles.disabledButton,
+            ]}
+          >
+            <Text
+              style={[
+                styles.paginationButtonText,
+                currentPage === totalPages && styles.disabledButtonText,
+              ]}
+            >
+              Suivant
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -461,59 +451,59 @@ const styles = StyleSheet.create({
     width: 48,
     // manual gradient simulation using nested Views
     backgroundColor: "transparent",
-    },
+  },
   paginationContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-      justifyContent: 'space-between',
-  marginBottom: 12,
-},
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
 
-paginationButton: {
-  backgroundColor: '#000',
-  paddingHorizontal: 18,
-  paddingVertical: 12,
-  borderRadius: 14,
-},
+  paginationButton: {
+    backgroundColor: "#000",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 14,
+  },
 
-disabledButton: {
-  backgroundColor: '#E5E7EB',
-},
+  disabledButton: {
+    backgroundColor: "#E5E7EB",
+  },
 
-paginationButtonText: {
-  color: '#FFF',
-  fontWeight: '600',
-},
+  paginationButtonText: {
+    color: "#FFF",
+    fontWeight: "600",
+  },
 
-disabledButtonText: {
-  color: '#9CA3AF',
-},
+  disabledButtonText: {
+    color: "#9CA3AF",
+  },
 
-pagesContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 8,
-},
+  pagesContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
 
-pageButton: {
-  width: 40,
-  height: 40,
-  borderRadius: 12,
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: '#F3F4F6',
-},
+  pageButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F3F4F6",
+  },
 
-activePageButton: {
-  backgroundColor: '#000',
-},
+  activePageButton: {
+    backgroundColor: "#000",
+  },
 
-pageText: {
-  color: '#111827',
-  fontWeight: '600',
-},
+  pageText: {
+    color: "#111827",
+    fontWeight: "600",
+  },
 
-activePageText: {
-  color: '#FFF',
-},
+  activePageText: {
+    color: "#FFF",
+  },
 });
