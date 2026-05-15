@@ -82,9 +82,6 @@ const gallery = () => {
 
       const updatedGallery = await getAllGalleries({ username });
 
-      // ADD THIS
-      console.log("First item:", JSON.stringify(updatedGallery[0]));
-
       setImages(updatedGallery);
     } catch (error) {
       console.log(error);

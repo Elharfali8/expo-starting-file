@@ -9,7 +9,7 @@ const StoreLayout = () => {
     {
       id: 1,
       title: "produits",
-      path: `/digital-profile/management/${username}/store`,
+      path: `/digital-profile/management/${username}/store/products`,
     },
     {
       id: 2,

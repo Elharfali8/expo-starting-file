@@ -56,6 +56,12 @@ const HomeManagement = () => {
     },
   ];
 
+  const handleShare = async () => {
+    await Share.share({
+      message: `Découvrez mon profil : https://digitalprofile.ma/${username}`,
+    });
+  };
+
   const mediUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
   const { username: rawUsername } = useLocalSearchParams();
   const username = Array.isArray(rawUsername) ? rawUsername[0] : rawUsername;
@@ -85,9 +91,7 @@ const HomeManagement = () => {
         <PublicProfileCard
           username={username}
           avatarSource={require("@/assets/images/t.png")}
-          onShare={() =>
-            Share.share({ url: `https://digitalprofile.ma/johndoe` })
-          }
+          onShare={handleShare}
         />
 
         {/* Actions rapides */}
