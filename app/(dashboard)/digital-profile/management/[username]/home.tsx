@@ -1,21 +1,26 @@
 import PageTitle from "@/app/(dashboard)/components/PageTitle";
+import * as Clipboard from "expo-clipboard";
+import { useLocalSearchParams } from "expo-router";
 import {
   Link2,
   PackageSearch,
   UserPlus,
   UserRoundPen,
 } from "lucide-react-native";
-import React from "react";
+import React, { useState } from "react";
 import {
   Image,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import PublicProfileCard from "./components/PublicProfileCard";
 
 const HomeManagement = () => {
+  const [copied, setCopied] = useState(false);
   const fasterActions = [
     {
       id: 1,
@@ -52,6 +57,18 @@ const HomeManagement = () => {
   ];
 
   const mediUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
+  const { username: rawUsername } = useLocalSearchParams();
+  const username = Array.isArray(rawUsername) ? rawUsername[0] : rawUsername;
+
+  const handleCopy = async () => {
+    await Clipboard.setStringAsync(`https://digitalprofile.ma/${username}`);
+
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
 
   return (
     <ScrollView
@@ -60,8 +77,17 @@ const HomeManagement = () => {
     >
       <View className="px-4 pt-4 pb-8">
         <PageTitle
-          title="Bon retour, Yascript"
+          title={`Bon retour, ${username}`}
           subTitle="Gérez rapidement votre profil"
+        />
+
+        {/*  */}
+        <PublicProfileCard
+          username={username}
+          avatarSource={require("@/assets/images/t.png")}
+          onShare={() =>
+            Share.share({ url: `https://digitalprofile.ma/johndoe` })
+          }
         />
 
         {/* Actions rapides */}
@@ -205,48 +231,48 @@ const HomeManagement = () => {
             Commandes récentes :
           </Text>
           <View className="w-full">
-  {/* Livrée */}
-  <View className="flex-row justify-between items-center py-3 border-b border-slate-200">
-    <View>
-      <Text className="text-gray-900 font-medium">#1234</Text>
-      <Text className="text-gray-500 text-xs">John Doe</Text>
-    </View>
+            {/* Livrée */}
+            <View className="flex-row justify-between items-center py-3 border-b border-slate-200">
+              <View>
+                <Text className="text-gray-900 font-medium">#1234</Text>
+                <Text className="text-gray-500 text-xs">John Doe</Text>
+              </View>
 
-    <View className="w-24 items-center bg-green-100 px-3 py-1 rounded-full">
-      <Text className="text-green-700 text-xs font-semibold">
-        Livrée
-      </Text>
-    </View>
-  </View>
+              <View className="w-24 items-center bg-green-100 px-3 py-1 rounded-full">
+                <Text className="text-green-700 text-xs font-semibold">
+                  Livrée
+                </Text>
+              </View>
+            </View>
 
-  {/* En attente */}
-  <View className="flex-row justify-between items-center py-3 border-b border-slate-200">
-    <View>
-      <Text className="text-gray-900 font-medium">#1235</Text>
-      <Text className="text-gray-500 text-xs">Jane Smith</Text>
-    </View>
+            {/* En attente */}
+            <View className="flex-row justify-between items-center py-3 border-b border-slate-200">
+              <View>
+                <Text className="text-gray-900 font-medium">#1235</Text>
+                <Text className="text-gray-500 text-xs">Jane Smith</Text>
+              </View>
 
-    <View className="w-24 items-center bg-yellow-100 px-3 py-1 rounded-full">
-      <Text className="text-yellow-700 text-xs font-semibold">
-        En attente
-      </Text>
-    </View>
-  </View>
+              <View className="w-24 items-center bg-yellow-100 px-3 py-1 rounded-full">
+                <Text className="text-yellow-700 text-xs font-semibold">
+                  En attente
+                </Text>
+              </View>
+            </View>
 
-  {/* Non payée */}
-  <View className="flex-row justify-between items-center py-3">
-    <View>
-      <Text className="text-gray-900 font-medium">#1236</Text>
-      <Text className="text-gray-500 text-xs">Bob Wilson</Text>
-    </View>
+            {/* Non payée */}
+            <View className="flex-row justify-between items-center py-3">
+              <View>
+                <Text className="text-gray-900 font-medium">#1236</Text>
+                <Text className="text-gray-500 text-xs">Bob Wilson</Text>
+              </View>
 
-    <View className="w-24 items-center bg-red-100 px-3 py-1 rounded-full">
-      <Text className="text-red-700 text-xs font-semibold">
-        Non payée
-      </Text>
-    </View>
-  </View>
-</View>
+              <View className="w-24 items-center bg-red-100 px-3 py-1 rounded-full">
+                <Text className="text-red-700 text-xs font-semibold">
+                  Non payée
+                </Text>
+              </View>
+            </View>
+          </View>
         </View>
 
         {/* Statistiques */}
