@@ -2,22 +2,22 @@ import { createCategory } from "@/app/(dashboard)/digital-profile/api/store/cate
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams } from "expo-router";
 import {
-    CheckCircle,
-    ChevronDown,
-    ChevronUp,
-    ImagePlus,
-    X,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  ImagePlus,
+  X,
 } from "lucide-react-native";
 import React, { useRef, useState } from "react";
 import {
-    Image,
-    Modal,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 type Props = {

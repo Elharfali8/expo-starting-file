@@ -1,12 +1,6 @@
 import { Edit, Trash2 } from "lucide-react-native";
 import React from "react";
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface Product {
   id: number;
@@ -14,9 +8,17 @@ interface Product {
   name: string;
   image: string;
   visibility: boolean;
+  category: string;
 }
 
-const ProductCard = ({ id, price, name, image, visibility }: Product) => {
+const ProductCard = ({
+  id,
+  price,
+  name,
+  image,
+  visibility,
+  category,
+}: Product) => {
   const mediaUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
 
   return (
@@ -40,7 +42,7 @@ const ProductCard = ({ id, price, name, image, visibility }: Product) => {
 
         <View style={styles.badgeRow}>
           <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>Category</Text>
+            <Text style={styles.categoryText}>{category}</Text>
           </View>
 
           <View
@@ -61,7 +63,7 @@ const ProductCard = ({ id, price, name, image, visibility }: Product) => {
                 visibility ? styles.statusTextActive : styles.statusTextHidden,
               ]}
             >
-              {visibility ?  "Actif" : "Caché"}
+              {visibility ? "Actif" : "Caché"}
             </Text>
           </View>
         </View>
