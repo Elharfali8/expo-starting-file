@@ -40,7 +40,9 @@ const StoreLayout = () => {
     >
       <View className="px-4 pt-4 pb-8">
         {!pathname.includes("/store/orders/") &&
-          !pathname.includes("/store/customers/") && (
+          !pathname.includes("/store/customers/") &&
+            !pathname.includes('/store/products/') &&
+          (
             <View className="bg-white shadow-md rounded-2xl p-4 mb-6">
               <Text className="text-lg font-semibold text-gray-800">
                 Navigation

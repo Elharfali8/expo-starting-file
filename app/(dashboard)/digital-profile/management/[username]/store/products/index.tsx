@@ -1,5 +1,5 @@
 import { getAllCategories } from "@/app/(dashboard)/digital-profile/api/store/categories";
-import { getAllProducts } from "@/app/(dashboard)/digital-profile/api/store/products";
+import { deleteProduct, getAllProducts } from "@/app/(dashboard)/digital-profile/api/store/products";
 import { useLocalSearchParams } from "expo-router";
 import {
   ChevronDown,
@@ -20,6 +20,7 @@ import {
   View,
 } from "react-native";
 import ProductCard from "../components/ProductCard";
+import DeleteProductModal from "../components/DeleteProductModal";
 
 const Store = () => {
   const { username } = useLocalSearchParams();
@@ -33,9 +34,16 @@ const Store = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
 
+  // delete state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [deleting, setDeleting] = useState(false)
+
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+
   // Filter states
-const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-const [tempCategory, setTempCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [tempCategory, setTempCategory] = useState<string | null>(null);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [tempMinPrice, setTempMinPrice] = useState("");
@@ -44,6 +52,38 @@ const [tempCategory, setTempCategory] = useState<string | null>(null);
   // Modal scroll states
   const [isAtBottom, setIsAtBottom] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+
+  // handle delete
+
+  const handleSuccessClose = () => {
+    setDeleteSuccess(false);
+
+    setDeleteModalOpen(false);
+  };
+
+  const handleDelete = async () => {
+  try {
+    if (typeof username !== "string") return;
+    if (!selectedProductId) return;
+
+    setDeleting(true);
+
+    await deleteProduct({
+      username,
+      productId: selectedProductId,
+    });
+
+    setProducts((prev) =>
+      prev.filter((item) => item.id !== selectedProductId),
+    );
+
+    setDeleteSuccess(true);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setDeleting(false);
+  }
+};
 
   const handleScroll = (e: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
@@ -117,11 +157,10 @@ const [tempCategory, setTempCategory] = useState<string | null>(null);
           page: currentPage,
           limit: 6,
           search: search,
-          category: selectedCategory ?? undefined,// ← replaces the "all" check
+          category: selectedCategory ?? undefined, // ← replaces the "all" check
           minPrice: minPrice ? parseFloat(minPrice) : undefined,
           maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
         });
-        console.log("Products fetched:", res);
         setProducts(res.products);
         setTotalPages(res.totalPages);
       } catch (error) {
@@ -223,9 +262,8 @@ const [tempCategory, setTempCategory] = useState<string | null>(null);
             {selectedCategory && (
               <View className="bg-blue-100 px-3 py-1 rounded-full flex-row items-center gap-2">
                 <Text className="text-blue-700 text-xs">
-                  Cat: {
-  categories.find(c => c.id === selectedCategory)?.label
-}
+                  Cat:{" "}
+                  {categories.find((c) => c.id === selectedCategory)?.label}
                 </Text>
                 <TouchableOpacity onPress={() => setSelectedCategory("")}>
                   <X size={14} color="#1D4ED8" />
@@ -291,11 +329,14 @@ const [tempCategory, setTempCategory] = useState<string | null>(null);
                 const category = item?.category?.name;
                 return (
                   <ProductCard
-                    key={item.id}
-                    {...item}
-                    image={image}
-                    category={category}
-                  />
+                      key={item.id}
+                      {...item}
+                      image={image}
+                      category={category}
+                      username={username}
+                      setDeleteModalOpen={setDeleteModalOpen}
+                      setSelectedProductId={setSelectedProductId}
+                    />
                 );
               })}
             </View>
@@ -382,6 +423,18 @@ const [tempCategory, setTempCategory] = useState<string | null>(null);
         )}
       </View>
 
+      {/* DELETE MODAL */}
+      {deleteModalOpen && (
+        <DeleteProductModal
+          visible = {deleteModalOpen}
+          onClose = {() => setDeleteModalOpen(false)}
+          onDelete = {handleDelete}
+          onSuccessClose = {handleSuccessClose}
+          deleting = {deleting}
+          deleteSuccess = {deleteSuccess}
+        />
+      )}
+
       {/* FILTER MODAL */}
       <Modal
         visible={modalVisible}
@@ -445,7 +498,7 @@ const [tempCategory, setTempCategory] = useState<string | null>(null);
               <View className="flex-col items-center gap-y-2 mb-6">
                 {categories.map((item: any) => {
                   const activeCategory =
-  tempCategory === (item.isAll ? null : item.id);
+                    tempCategory === (item.isAll ? null : item.id);
 
                   const imageUrl = getFullImageUrl(item.image_path);
 
@@ -454,7 +507,7 @@ const [tempCategory, setTempCategory] = useState<string | null>(null);
                       key={item.id}
                       activeOpacity={0.85}
                       onPress={() => {
-                        const cat = item.isAll ? null : item.id;// "" means no category filter
+                        const cat = item.isAll ? null : item.id; // "" means no category filter
                         setTempCategory(cat);
                         setSelectedCategory(cat); // ← keep this
                         setCurrentPage(1);

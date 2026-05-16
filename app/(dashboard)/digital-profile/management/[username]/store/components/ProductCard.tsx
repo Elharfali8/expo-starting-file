@@ -1,7 +1,8 @@
+import { router } from "expo-router";
 import { Edit, Trash2 } from "lucide-react-native";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
+import { Pressable } from "react-native";
 interface Product {
   id: number;
   price: number;
@@ -9,6 +10,9 @@ interface Product {
   image: string;
   visibility: boolean;
   category: string;
+  username: string;
+  setDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedProductId: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 const ProductCard = ({
@@ -18,11 +22,21 @@ const ProductCard = ({
   image,
   visibility,
   category,
+  username,
+  setDeleteModalOpen,
+  setSelectedProductId,
 }: Product) => {
   const mediaUrl = process.env.EXPO_PUBLIC_MEDIA_URL;
 
   return (
-    <View style={styles.card}>
+    <Pressable
+  style={styles.card}
+  onPress={() =>
+    router.push(
+      `/digital-profile/management/${username}/store/products/${id}`,
+    )
+  }
+>
       {/* Image */}
       <View style={styles.imageWrapper}>
         <Image
@@ -71,14 +85,29 @@ const ProductCard = ({
 
       {/* Actions */}
       <View style={styles.actions}>
-        <TouchableOpacity activeOpacity={0.7} style={styles.deleteBtn}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => {
+            setSelectedProductId(id);
+            setDeleteModalOpen(true);
+          }}
+          style={styles.deleteBtn}
+        >
           <Trash2 size={16} color="#ef4444" strokeWidth={2} />
         </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.7} style={styles.editBtn}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() =>
+            router.push(
+              `/digital-profile/management/${username}/store/products/${id}`,
+            )
+          }
+          style={styles.editBtn}
+        >
           <Edit size={16} color="#6366f1" strokeWidth={2} />
         </TouchableOpacity>
       </View>
-    </View>
+    </Pressable>
   );
 };
 

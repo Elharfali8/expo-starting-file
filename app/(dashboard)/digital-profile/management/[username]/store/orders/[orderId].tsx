@@ -330,6 +330,16 @@ const SingleOrderPage = () => {
     return <Loading />;
   }
 
+  // useEffect(() => {
+  //   if (!orderId || typeof username !== "string") return;
+
+  //   const parsedOrderId = Number(orderId);
+
+  //   if (isNaN(parsedOrderId)) {
+  //     router.replace(`/digital-profile/management/${username}/store/orders`);
+  //   }
+  // }, [orderId, username]);
+
   return (
     <View>
       {/* HEADER */}
