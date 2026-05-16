@@ -113,3 +113,6 @@ export async function deleteProduct({
 
   return data;
 }
+
+
+// UPDATE PRODUCT
